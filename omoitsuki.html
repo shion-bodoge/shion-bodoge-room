@@ -100,7 +100,7 @@ p{
 
 <h1>📝 思いつきの倉庫</h1>
 <p class="subtitle">思いついたこと、どんどん書こう</p>
-
+<div id="tagBar"></div>
 <div id="entries"></div>
 
 </div>
@@ -158,16 +158,26 @@ p{
     const iId = idx("id");
     const iDate = idx("date");
     const iBody = idx("body");
+    const iTags = idx("tags");
 
     if (iId < 0 || iDate < 0 || iBody < 0){
       throw new Error("memos.csv のヘッダーに id,date,body が必要です");
     }
 
     const memos = table.slice(1).map(r => ({
-      id: (r[iId] ?? "").trim(),
-      date: (r[iDate] ?? "").trim(),
-      body: (r[iBody] ?? "").trim(),
-    })).filter(m => m.id && m.body);
+      const tagsRaw = (iTags >= 0 ? (r[iTags] ?? "") : "").toString();
+      const tags = tagsRaw
+        .split(",")
+        .map(t => t.trim())
+        .filter(Boolean);
+
+      return {
+        id: (r[iId] ?? "").trim(),
+        date: (r[iDate] ?? "").trim(),
+        body: (r[iBody] ?? "").trim(),
+        tags,
+      };
+    }).filter(m => m.id && m.body);
 
     memos.reverse(); // 新しい順
     return memos;
@@ -211,6 +221,66 @@ p{
     const url = new URL(location.href);
     if (memoId) url.searchParams.set("memo", memoId);
     else url.searchParams.delete("memo");
+    history.pushState({}, "", url.toString());
+  }
+
+  let activeTag = null;
+
+  function renderTagBar(allMemos){
+    const el = document.getElementById("tagBar");
+    if (!el) return;
+
+    // タグ一覧作成
+    const set = new Set();
+    for (const m of allMemos){
+      for (const t of (m.tags || [])) set.add(t);
+    }
+    const tags = Array.from(set).sort((a,b)=>a.localeCompare(b,"ja"));
+
+    // 何もタグが無いなら非表示
+    if (tags.length === 0){
+      el.innerHTML = "";
+      return;
+    }
+
+    const chip = (label, isActive) => `
+      <button type="button" data-tag="${escapeHtml(label)}"
+        style="
+          border:1px solid rgba(180,120,150,.35);
+          background:${isActive ? "rgba(255,255,255,.95)" : "rgba(255,255,255,.70)"};
+          border-radius:999px;
+          padding:7px 12px;
+          font-size:13px;
+          cursor:pointer;
+          color:var(--text);
+          opacity:${isActive ? "1" : ".9"};
+        "
+      >${escapeHtml(label)}</button>
+    `;
+
+    el.innerHTML = `
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px;">
+        ${chip("すべて", activeTag === null)}
+        ${tags.map(t => chip(t, activeTag === t)).join("")}
+      </div>
+    `;
+
+    el.querySelectorAll("button[data-tag]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const t = btn.getAttribute("data-tag");
+        activeTag = (t === "すべて") ? null : t;
+        setQueryTag(activeTag);
+        init(); // 再描画
+      });
+    });
+  }
+
+  function setQueryTag(tag){
+    const url = new URL(location.href);
+    if (tag) url.searchParams.set("tag", tag);
+    else url.searchParams.delete("tag");
+    // memo表示中はタグよりmemo優先にしたいので、tag切替時にmemoは消す
+    url.searchParams.delete("memo");
     history.pushState({}, "", url.toString());
   }
 
@@ -354,6 +424,8 @@ p{
     try{
       const [memos, comments] = await Promise.all([loadMemos(), loadComments()]);
       const memoId = new URL(location.href).searchParams.get("memo");
+      const tag = new URL(location.href).searchParams.get("tag");
+      activeTag = tag || null;
 
       if (memoId){
         const memo = memos.find(m => m.id === memoId);
@@ -364,6 +436,14 @@ p{
         renderDetail(memo, comments);
       } else {
         renderList(memos, comments);
+      } else {
+        renderTagBar(memos);
+
+        const filtered = activeTag
+          ? memos.filter(m => (m.tags || []).includes(activeTag))
+          : memos;
+
+        renderList(filtered, comments);
       }
     }catch(e){
       console.error(e);
