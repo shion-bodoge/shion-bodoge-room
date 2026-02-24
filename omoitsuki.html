@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>思いつきの倉庫</title>
+
+<style>
+:root{
+  --text:#2f2830;
+  --sakura:#d98cab;
+  --sakura-soft:#f6e6ee;
+}
+
+body{
+  margin:0;
+  font-family: system-ui, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(900px 600px at 15% 5%, rgba(255,200,220,.25), transparent 60%),
+    radial-gradient(1000px 700px at 85% 10%, rgba(255,220,235,.28), transparent 60%),
+    linear-gradient(180deg, #fff9fc 0%, #f7eef3 100%);
+  padding:0;
+}
+
+/* 🌸 ヘッダー */
+header{
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background: rgba(255,255,255,.6);
+  backdrop-filter: blur(6px);
+  border-bottom:1px solid rgba(180,120,150,.2);
+}
+
+header a{
+  text-decoration:none;
+  font-size:14px;
+  color:var(--text);
+  opacity:.7;
+}
+
+header a:hover{
+  opacity:1;
+}
+
+.container{
+  max-width:720px;
+  margin:60px auto;
+  padding:0 20px;
+}
+
+h1{
+  font-size:26px;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  margin-bottom:30px;
+  opacity:.75;
+}
+
+/* 🌸 エントリー */
+.entry{
+  background: rgba(255,255,255,.92);
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:20px;
+  border:2px solid rgba(180,120,150,.35);
+  box-shadow: 0 10px 25px rgba(120,70,100,.08);
+  transition: transform .15s ease;
+}
+
+.entry:hover{
+  transform: translateY(-2px);
+}
+
+.date{
+  font-size:13px;
+  opacity:.6;
+  margin-bottom:8px;
+}
+
+p{
+  margin:0;
+  line-height:1.9;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>📝 思いつきの倉庫</div>
+  <a href="index.html">← 研究ルームへ戻る</a>
+</header>
+
+<div class="container">
+
+<h1>📝 思いつきの倉庫</h1>
+<p class="subtitle">思いついたこと、どんどん書こう</p>
+
+<div id="entries"></div>
+
+</div>
+
+<script>
+  const MEMO_CSV_URL = "./data/memos.csv";
+  const COMMENTS_CSV_URL = "./data/comments.csv";
+
+  const COMMENT_FORM_PREFILL_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLSd_MNIxcFujR2-iMWkFUX2b-DhJMew3LjNmxcf8tLWnNbSYzw/viewform?usp=pp_url&entry.2123112775=";
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#39;");
+  }
+
+  function parseCSV(text){
+    const rows = [];
+    let row = [], cur = "", inQ = false;
+    for (let i=0; i<text.length; i++){
+      const c = text[i], n = text[i+1];
+      if (c === '"'){
+        if (inQ && n === '"'){ cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (!inQ && c === ","){
+        row.push(cur); cur = "";
+      } else if (!inQ && (c === "\n" || c === "\r")){
+        if (c === "\r" && n === "\n") i++;
+        row.push(cur); rows.push(row);
+        row = []; cur = "";
+      } else {
+        cur += c;
+      }
+    }
+    if (cur.length || row.length){ row.push(cur); rows.push(row); }
+    return rows;
+  }
+
+  async function loadCSV(url){
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("取得に失敗: " + url);
+    return await res.text();
+  }
+
+  async function loadMemos(){
+    const csv = await loadCSV(MEMO_CSV_URL);
+    const table = parseCSV(csv).filter(r => r.some(x => String(x).trim() !== ""));
+    const header = table[0].map(h => h.trim());
+
+    const idx = (name) => header.indexOf(name);
+    const iId = idx("id");
+    const iDate = idx("date");
+    const iBody = idx("body");
+
+    if (iId < 0 || iDate < 0 || iBody < 0){
+      throw new Error("memos.csv のヘッダーに id,date,body が必要です");
+    }
+
+    const memos = table.slice(1).map(r => ({
+      id: (r[iId] ?? "").trim(),
+      date: (r[iDate] ?? "").trim(),
+      body: (r[iBody] ?? "").trim(),
+    })).filter(m => m.id && m.body);
+
+    memos.reverse(); // 新しい順
+    return memos;
+  }
+
+  async function loadComments(){
+    // comments.csv がまだ無い/初回同期前でも落ちないようにする
+    try{
+      const csv = await loadCSV(COMMENTS_CSV_URL);
+      const table = parseCSV(csv).filter(r => r.some(x => String(x).trim() !== ""));
+      if (!table.length) return [];
+
+      const header = table[0].map(h => h.trim());
+      const idx = (name) => header.indexOf(name);
+
+      // あなたのヘッダーに合わせる（重要）
+      const iTs = idx("タイムスタンプ");
+      const iMemo = idx("memoId");
+      const iName = idx("name");
+      const iText = idx("コメント");
+
+      if (iMemo < 0 || iText < 0){
+        // memoId と コメント だけは必須
+        return [];
+      }
+
+      return table.slice(1).map(r => ({
+        ts: (iTs >= 0 ? (r[iTs] ?? "") : "").trim(),
+        memoId: (r[iMemo] ?? "").trim(),
+        name: (iName >= 0 ? (r[iName] ?? "") : "").trim(),
+        text: (r[iText] ?? "").trim(),
+      })).filter(c => c.memoId && c.text);
+    }catch(e){
+      return [];
+    }
+  }
+
+  function setQueryMemo(memoId){
+    const url = new URL(location.href);
+    if (memoId) url.searchParams.set("memo", memoId);
+    else url.searchParams.delete("memo");
+    history.pushState({}, "", url.toString());
+  }
+
+  function renderList(memos){
+    const root = document.getElementById("entries");
+    root.innerHTML = "";
+
+    for (const m of memos){
+      const safeDate = escapeHtml(m.date);
+      const safeBody = escapeHtml(m.body).replaceAll("\n","<br>");
+      const openUrl = new URL(location.href);
+      openUrl.searchParams.set("memo", m.id);
+
+      const entry = document.createElement("div");
+      entry.className = "entry";
+      entry.innerHTML = `
+        <div class="date">${safeDate}</div>
+        <p>${safeBody}</p>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:10px;flex-wrap:wrap;">
+          <a href="${openUrl.toString()}"
+             style="
+               border:1px solid rgba(180,120,150,.45);
+               background: rgba(255,255,255,.85);
+               border-radius:999px;
+               padding:8px 12px;
+               font-size:13px;
+               text-decoration:none;
+               color:var(--text);
+             "
+          >📌 このメモを開く</a>
+          <a href="${COMMENT_FORM_PREFILL_URL + encodeURIComponent(m.id)}"
+             target="_blank" rel="noopener"
+             style="
+               border:1px solid rgba(180,120,150,.25);
+               background: rgba(255,255,255,.65);
+               border-radius:999px;
+               padding:8px 12px;
+               font-size:13px;
+               text-decoration:none;
+               color:var(--text);
+               opacity:.9;
+             "
+          >💬 コメントする</a>
+        </div>
+      `;
+      root.appendChild(entry);
+    }
+  }
+
+  function renderDetail(memo, comments){
+    const root = document.getElementById("entries");
+    const safeDate = escapeHtml(memo.date);
+    const safeBody = escapeHtml(memo.body).replaceAll("\n","<br>");
+    const commentUrl = COMMENT_FORM_PREFILL_URL + encodeURIComponent(memo.id);
+
+    const items = comments
+      .filter(c => c.memoId === memo.id)
+      .map(c => {
+        const name = escapeHtml(c.name || "匿名");
+        const ts = escapeHtml(c.ts || "");
+        const text = escapeHtml(c.text).replaceAll("\n","<br>");
+        const meta = ts ? `${name} ・ ${ts}` : name;
+        return `
+          <div style="
+            border:1px solid rgba(180,120,150,.25);
+            background: rgba(255,255,255,.65);
+            border-radius:14px;
+            padding:10px 12px;
+          ">
+            <div style="font-size:12px;opacity:.65;margin-bottom:6px;">${meta}</div>
+            <div style="font-size:14px;line-height:1.7;">${text}</div>
+          </div>
+        `;
+      }).join("");
+
+    root.innerHTML = `
+      <div class="entry">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="date">${safeDate}</div>
+          <a href="#" id="backLink" style="text-decoration:none;font-size:13px;opacity:.75;color:var(--text);">← 一覧に戻る</a>
+        </div>
+
+        <p style="margin-top:6px;">${safeBody}</p>
+
+        <div style="margin-top:16px;padding-top:14px;border-top:1px dashed rgba(180,120,150,.35);">
+          <div style="font-size:13px;opacity:.8;margin-bottom:10px;">💬 コメント</div>
+
+          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+            <a href="${commentUrl}" target="_blank" rel="noopener"
+               style="
+                 border:1px solid rgba(180,120,150,.45);
+                 background: rgba(255,255,255,.85);
+                 border-radius:999px;
+                 padding:8px 12px;
+                 font-size:13px;
+                 text-decoration:none;
+                 color:var(--text);
+               "
+            >💬 このメモにコメントする</a>
+          </div>
+
+          <div style="display:grid;gap:10px;">
+            ${items || `<div style="font-size:12px;opacity:.65;">まだコメントはありません。</div>`}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("backLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      setQueryMemo(null);
+      // 一覧に戻すために再描画（popstateより確実）
+      init();
+    });
+  }
+
+  async function init(){
+    const root = document.getElementById("entries");
+    try{
+      const [memos, comments] = await Promise.all([loadMemos(), loadComments()]);
+      const memoId = new URL(location.href).searchParams.get("memo");
+
+      if (memoId){
+        const memo = memos.find(m => m.id === memoId);
+        if (!memo){
+          root.innerHTML = `<div class="entry"><p>指定されたメモが見つかりませんでした。</p></div>`;
+          return;
+        }
+        renderDetail(memo, comments);
+      } else {
+        renderList(memos);
+      }
+    }catch(e){
+      console.error(e);
+      root.innerHTML = `<div class="entry"><p>読み込みに失敗しました：${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  window.addEventListener("popstate", init);
+  init();
+</script>
+</body>
+</html>
