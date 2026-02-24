@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>しおんのボドゲ部屋</title>
+  <meta name="description" content="しおんのボドゲ部屋｜今日はどの部屋に入る？ まったりゲーム＆ふるよに研究ルーム" />
+  <style>
+    :root{
+      --bg: #fdf6ee;              /* クリーム背景 */
+      --card: #ffffff;            /* カード白 */
+      --card2: #fff8f0;
+      --text: #3a2f28;            /* ダークブラウン文字 */
+      --muted: #7a6a60;           /* やわらかいグレー */
+      --line: #f0dfd2;            /* 薄い境界線 */
+      --accent: #ffb870;          /* うすいオレンジ */
+      --accent2: #ffd7a8;         /* さらに淡い */
+      --shadow: 0 10px 25px rgba(0,0,0,.06);
+      --radius: 18px;
+      --max: 980px;
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+              "Noto Sans JP", "Yu Gothic", "Meiryo", Arial, sans-serif;
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        /* 窓から入る白い光（左上） */
+        radial-gradient(900px 600px at 18% 8%, rgba(255,255,255,.75), transparent 70%),
+        /* 空気の層（中央） */
+        radial-gradient(1200px 900px at 55% 35%, rgba(255,255,255,.35), transparent 75%),
+        /* 床の薄い陰（下） */
+        radial-gradient(1200px 900px at 50% 110%, rgba(0,0,0,.035), transparent 70%),
+        /* ベース（生成り） */
+        #f6f2eb;
+      min-height: 100vh;
+    }
+    a{ color: inherit; text-decoration: none; }
+    .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px 18px 50px;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 4px 18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .logo{
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(139,240,255,.9), rgba(255,179,230,.85));
+      box-shadow: var(--shadow);
+    }
+    .brand h1{
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: .02em;
+    }
+    .brand p{
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hero{
+      padding: 20px 0 10px;
+    }
+    .hero h2{
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: .01em;
+    }
+    .hero .lead{
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.7;
+    }
+    .hero .tagline{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .hero .tagline b{
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    @media (min-width: 760px){
+      .grid{ grid-template-columns: 1fr 1fr; gap: 16px; }
+    }
+
+    .card{
+      border: 2px solid rgba(255,184,112,.35);
+      border-radius: 22px;
+      background: #ffffff;
+      padding: 18px;
+      box-shadow: 0 10px 26px rgba(58,47,40,.07);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover{
+      transform: translateY(-6px);
+      box-shadow: 0 20px 45px rgba(58,47,40,.12);
+    }
+    .room-roomy{
+      border: 2px solid rgba(255,160,80,.45);
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 14px 32px rgba(255,160,80,.08);
+    }
+    .room-research{
+      border: 2px solid rgba(255,170,190,.45);
+      box-shadow: 0 14px 32px rgba(255,170,190,.06);
+      background: rgba(255,255,255,.96);
+      position: relative;
+    }
+
+    .room-research::after{
+      content:"";
+      position:absolute;
+      //inset: 8px;               /* 内側にもう一本 */
+      border-radius: 16px;
+      border: 1px solid rgba(240,223,210,.95);
+      pointer-events: none;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .badge span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 30px; height: 30px;
+      border-radius: 12px;
+      background: rgba(255,184,112,.15);
+      border: 1px solid rgba(255,184,112,.4);
+    }
+    .card h3{
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+    .card p{
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13.5px;
+    }
+    .btnrow{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+
+      padding: 12px 18px;          /* ← 余白アップ */
+      border-radius: 999px;        /* ← やわらかく丸く */
+
+      background: transparent;     /* ← 中の色なし */
+      border: 2px solid var(--line); /* ← 枠を太く */
+
+      font-size: 13px;
+      color: var(--text);
+
+      transition: all .15s ease;
+      text-decoration: none;
+    }
+    .btn:hover{
+      border-color: rgba(255,184,112,.6);
+      transform: translateY(-1px);
+    }
+    .btn.primary:hover{
+      border-color: rgba(255,160,80,1);
+    }
+    .btn.primary{
+      border: 2px solid rgba(255,184,112,.8);  /* ← 少し強め */
+      background: transparent;                /* ← 塗らない */
+    }
+    .btn.small{
+      padding: 8px 10px;
+      font-size: 12.5px;
+      border-radius: 12px !important;
+    }
+    /* 右上のYouTubeボタン（サイトの薄オレンジに統一） */
+    .btn-youtube{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+
+      padding: 9px 12px;
+      border-radius: 999px;
+
+      border: 1px solid rgba(255,184,112,.55);
+      background: rgba(255,255,255,.55);
+      color: var(--text);
+
+      box-shadow: 0 8px 20px rgba(58,47,40,.10);
+      backdrop-filter: blur(6px);
+
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: .02em;
+
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .btn-youtube:hover{
+      transform: translateY(-1px);
+      background: rgba(255,235,220,.75);
+      border-color: rgba(255,184,112,.75);
+      box-shadow: 0 10px 26px rgba(58,47,40,.14);
+    }
+
+    .btn-youtube:active{
+      transform: translateY(0px);
+      box-shadow: 0 6px 18px rgba(58,47,40,.12);
+    }
+
+    .section{
+      margin-top: 16px;
+      border: 1px solid rgba(58,47,40,.06);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.02);
+      padding: 18px;
+    }
+    .section h4{
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: .02em;
+    }
+    .schedule{
+      display:grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .schedule li{
+      display: block; 
+      padding: 8px 0px;
+      border: none;
+      background: transparent;
+    }
+    .scheduleLink{
+      display:inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 8px 14px;
+      border-radius: 999px;
+
+      border: 2px solid rgba(255,184,112,.45);
+      background: rgba(255,255,255,.55);
+      text-decoration: none;
+      color: var(--text);
+
+      transition: transform .15s ease, border-color .15s ease;
+    }
+
+    .scheduleLink:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 14px 26px rgba(58,47,40,.08);
+      border-color: rgba(255,160,80,.75);
+    }
+    .schedule .day{
+      font-weight: 800;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+    .schedule .note{
+      color: rgba(58,47,40,.75);
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: right;
+    }
+    .scheduleMedia{
+      margin: 12px 0 14px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(58,47,40,.10);
+      background: rgba(255,255,255,.55);
+      //box-shadow: 0 18px 40px rgba(58,47,40,.10);
+    }
+
+    .scheduleMedia img{
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    footer{
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 4px;
+      display:flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hint{
+      opacity: .9;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11.5px;
+    }
+
+    .roomIcon{
+      width: 35px;
+      height: 35px;
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
+    /* ロゴを画像にする（既存の .logo を上書き） */
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    a[href="#"]{
+      opacity: .6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">
+           <img src="logo.png" alt="しおんのボドゲ部屋 ロゴ">
+        </div>
+        <div>
+          <h1>しおんのボドゲ部屋</h1>
+          <p>ボードゲーム配信＆動画 / 初心者歓迎</p>
+        </div>
+      </div>
+
+      <!-- ここにYouTubeチャンネルURLを入れると、右上のボタンが使えるようになります -->
+      <a class="btn-youtube" href="#" id="youtubeLink">YouTubeへ</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h2>今日はどの部屋に入る？</h2>
+        <p class="lead">
+          まったりゲームしませんか？<br />
+          ふらっと遊びに来てもOK。ふるよには研究モードもあります⚔
+        </p>
+        <div class="tagline">
+          <b>まったりゲーム / 初心者歓迎 / 参加型あり</b>
+        </div>
+
+        <div class="grid" role="list" aria-label="部屋一覧">
+          <section class="card room-roomy" role="listitem" aria-label="まったりルーム">
+            <div class="badge">
+               <img src="mikan.png" class="roomIcon" alt="まったりルーム">
+               まったりルーム
+            </div>
+            <h3>ゆるっと遊ぶ部屋</h3>
+            <p>
+              初心者歓迎の参加型。ゆるく楽しく、気軽にコメントしてね！
+            </p>
+            <div class="btnrow">
+              <a class="btn primary" href="#" id="watchLatest">最新配信/動画を見る</a>
+              <a class="btn" href="#schedule">今週の予定へ</a>
+            </div>
+          </section>
+
+          <section class="card room-research" role="listitem" aria-label="ふるよに研究ルーム">
+            <div class="badge">
+              <img src="sakura.png" class="roomIcon" alt="研究ルーム">
+              ふるよに研究ルーム
+            </div>
+            <h3>デッキ構築と戦略の部屋</h3>
+            <p>
+              ふるよには少しガチ寄り。構築・研究・対戦のメモを置いていきます。
+            </p>
+            <div class="btnrow">
+              <a class="btn primary" href="#" id="deckBuilder">デッキ構築システム（制作中）</a>
+              <a class="btn" href="#" id="furuyoniNotes">研究メモ（準備中）</a>
+            </div>
+          </section>
+        </div>
+      </section>
+
+        <section class="section" id="schedule" aria-label="今週の配信予定">
+          <h4>今週の配信予定（例）</h4>
+          <div class="scheduleMedia" aria-label="今週の予定の画像">
+            <img src="schedule.png" alt="今週の配信予定（画像）" />
+          </div>
+          <ul class="schedule">
+            <li>
+              <a class="scheduleLink" href="#" id="scheduleTue">
+                <span class="day">火</span><span class="note">ゲーム配信</span>
+              </a>
+            </li>
+
+            <li>
+              <a class="scheduleLink" href="#" id="scheduleWed">
+                <span class="day">水</span><span class="note">動画投稿</span>
+              </a>
+            </li>
+
+            <li>
+              <a class="scheduleLink" href="#" id="scheduleThu">
+                <span class="day">木</span><span class="note">ふるよに参加型</span>
+              </a>
+            </li>
+
+            <li>
+              <a class="scheduleLink" href="#" id="scheduleSat">
+                <span class="day">土</span><span class="note">ふるよに参加型（無理ならお休み）</span>
+              </a>
+            </li>
+          </ul>
+      </section>
+
+      <footer>
+        <div class="hint">© <span id="year"></span> しおんのボドゲ部屋</div>
+        <div class="mono">v0.1</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // ★ここだけ書き換えるとリンクが生きます（後からでOK）
+    const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/channel/UCrXd_KijTSd_iNUo2H32t0A";   // 例: "https://www.youtube.com/@yourchannel"
+    const LATEST_URL = "https://youtube.com/live/twx6W-o1ulI";            // 例: 最新動画や配信のURL
+    const DECK_BUILDER_URL = "";      // 例: あなたのデッキ構築システムのURL
+    const FURUYONI_NOTES_URL = "";    // 例: 研究メモページ（後で作る）
+    const SCHEDULE_TUE_URL = "https://youtube.com/live/88f58ieyVBA"; // 配信URL
+    const SCHEDULE_WED_URL = ""; // 動画URL
+    const SCHEDULE_THU_URL = "https://youtube.com/live/4cIe7VT4Qu8"; // 参加型URL
+    const SCHEDULE_SAT_URL = ""; // 調整枠（配信するならURL / 休みなら空でOK）
+
+    // 年号
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // リンク設定（空なら # のまま）
+    const setLink = (id, url) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (url && url.trim().length > 0) {
+        el.href = url.trim();
+        el.target = "_blank";
+        el.rel = "noopener noreferrer";
+      } else {
+        el.href = "#";
+      }
+    };
+
+    setLink("youtubeLink", YOUTUBE_CHANNEL_URL);
+    setLink("watchLatest", LATEST_URL);
+    setLink("deckBuilder", DECK_BUILDER_URL);
+    setLink("furuyoniNotes", FURUYONI_NOTES_URL);
+    
+    setLink("scheduleTue", SCHEDULE_TUE_URL);
+    setLink("scheduleWed", SCHEDULE_WED_URL);
+    setLink("scheduleThu", SCHEDULE_THU_URL);
+    setLink("scheduleSat", SCHEDULE_SAT_URL);
+
+    // URLが "#" のリンクは「準備中」にする
+    document.querySelectorAll('a[href="#"]').forEach(link => {
+      link.addEventListener("click", function(e){
+       e.preventDefault();
+        alert("ただいま準備中です🍊");
+      });
+    });
+  </script>
+</body>
+</html>
