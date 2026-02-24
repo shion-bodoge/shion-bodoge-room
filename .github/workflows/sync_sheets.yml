@@ -12,8 +12,18 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (main)
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Show repo state
+        run: |
+          set -eux
+          git branch -a
+          ls -la
+          ls -la data || true
 
       - name: Download memos.csv
         run: |
@@ -22,14 +32,17 @@ jobs:
           curl -L --fail \
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdKlEcKEIDZUJUhrwvVmSiG17NIx6H2E9i2CjIBKoG7nHYTnzVtgLvO4Xeherq_RfvMqWsQ_k1E7LL/pub?gid=0&single=true&output=csv" \
             -o data/memos.csv
-          ls -la data
+          echo "---- head ----"
           head -n 5 data/memos.csv || true
+          echo "---- wc ----"
+          wc -c data/memos.csv || true
 
-      - name: Commit if changed
+      - name: Commit & push if changed
         run: |
           set -eux
+          git status
           if git diff --quiet; then
-            echo "No changes"
+            echo "No changes (already synced)."
             exit 0
           fi
           git config user.name "github-actions[bot]"
@@ -37,4 +50,4 @@ jobs:
           git add data/memos.csv
           git status
           git commit -m "chore: sync memos.csv"
-          git push
+          git push origin main
