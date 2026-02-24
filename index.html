@@ -137,7 +137,6 @@
       background: rgba(255,255,255,.96);
       position: relative;
     }
-
     .room-research::after{
       content:"";
       position:absolute;
@@ -145,6 +144,12 @@
       border-radius: 16px;
       border: 1px solid rgba(240,223,210,.95);
       pointer-events: none;
+    }
+    .room-oyasumi{
+      border: 2px solid rgba(100, 130, 210, 0.55);
+      box-shadow: 0 14px 32px rgba(100, 130, 210,.15);
+      background: rgba(255,255,255,.96);
+      position: relative;
     }
     .badge{
       display:inline-flex;
@@ -424,8 +429,11 @@
             </div>
           </section>
 
-          <section class="card">
-             <div class="badge"><span>🌙</span> おやすみ日記</div>
+          <section class="card room-oyasumi" role="listitem" aria-label="おやすみ日記">
+             <div class="badge">
+             <img src="oyasumi.png" class="roomIcon" alt="おやすみ日記">
+               おやすみ日記
+　　　　　　</div>
                <h3>夜に書くひとこと</h3>
                  <p>
                    その日の気持ちや出来事を、やさしく置いていく場所。
