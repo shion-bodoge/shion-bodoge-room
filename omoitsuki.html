@@ -304,6 +304,23 @@ p{
       const badgeText = n === 0 ? "コメントなし" : `コメント ${n}`;
 
       const entry = document.createElement("div");
+      
+      const tagChips = (m.tags && m.tags.length)
+        ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+            ${m.tags.slice(0, 6).map(t => `
+              <span style="
+                font-size:12px;
+                padding:3px 10px;
+                border-radius:999px;
+                border:1px solid rgba(180,120,150,.22);
+                background: rgba(255,255,255,.55);
+                opacity:.9;
+              ">#${escapeHtml(t)}</span>
+            `).join("")}
+            ${m.tags.length > 6 ? `<span style="font-size:12px;opacity:.6;">+${m.tags.length - 6}</span>` : ""}
+          </div>`
+        : "";
+      
       entry.className = "entry";
       entry.innerHTML = `
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -319,6 +336,7 @@ p{
         </div>
 
         <p style="margin-top:8px;">${safeBody}</p>
+        ${tagChips}
 
         <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:10px;flex-wrap:wrap;">
           <a href="${openUrl.toString()}"
