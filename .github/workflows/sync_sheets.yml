@@ -3,7 +3,7 @@ name: Sync Google Sheets CSV
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/30 * * * *" # 30分ごと（好みで変更OK）
 
 permissions:
   contents: write
@@ -18,13 +18,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Show repo state
-        run: |
-          set -eux
-          git branch -a
-          ls -la
-          ls -la data || true
-
       - name: Download memos.csv
         run: |
           set -eux
@@ -32,17 +25,23 @@ jobs:
           curl -L --fail \
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdKlEcKEIDZUJUhrwvVmSiG17NIx6H2E9i2CjIBKoG7nHYTnzVtgLvO4Xeherq_RfvMqWsQ_k1E7LL/pub?gid=0&single=true&output=csv" \
             -o data/memos.csv
-          echo "---- head ----"
-          head -n 5 data/memos.csv || true
-          echo "---- wc ----"
-          wc -c data/memos.csv || true
+          head -n 3 data/memos.csv || true
+
+      - name: Download comments.csv
+        run: |
+          set -eux
+          mkdir -p data
+          curl -L --fail \
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRSuv0GFXiwNET7q_EI8w8d0Gt6pZfuJnXiJ3aNsk0Dxd_RwBU7b3xJrAmdYL5baKBxOfqHPq3z7ICm/pub?gid=1743649425&single=true&output=csv" \
+            -o data/comments.csv
+          head -n 3 data/comments.csv || true
 
       - name: Commit & push if changed
         run: |
           set -eux
           git status
 
-          # 追跡対象外（untracked）や変更があるか判定
+          # untracked/変更どちらも検知
           if [ -z "$(git status --porcelain)" ]; then
             echo "No changes (already synced)."
             exit 0
@@ -51,7 +50,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add data/memos.csv
+          git add data/memos.csv data/comments.csv
           git status
-          git commit -m "chore: sync memos.csv"
+          git commit -m "chore: sync sheets csv"
           git push origin main
