@@ -188,6 +188,7 @@ p{
       const iMemo = idx("memoId");
       const iName = idx("name");
       const iText = idx("コメント");
+      const iApproved = idx("approved");
 
       if (iMemo < 0 || iText < 0){
         // memoId と コメント だけは必須
@@ -199,7 +200,8 @@ p{
         memoId: (r[iMemo] ?? "").trim(),
         name: (iName >= 0 ? (r[iName] ?? "") : "").trim(),
         text: (r[iText] ?? "").trim(),
-      })).filter(c => c.memoId && c.text);
+        approved: (iApproved >= 0 ? (r[iApproved] ?? "") : "").trim(),
+      })).filter(c => c.memoId && c.text && c.approved.toLowerCase() === "true");
     }catch(e){
       return [];
     }
