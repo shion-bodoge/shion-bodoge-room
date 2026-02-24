@@ -214,9 +214,15 @@ p{
     history.pushState({}, "", url.toString());
   }
 
-  function renderList(memos){
+  function renderList(memos, comments){
     const root = document.getElementById("entries");
     root.innerHTML = "";
+
+    // memoId → コメント数（approvedのみが入ってる前提ならそのまま数える）
+    const countMap = new Map();
+    for (const c of comments){
+      countMap.set(c.memoId, (countMap.get(c.memoId) || 0) + 1);
+    }
 
     for (const m of memos){
       const safeDate = escapeHtml(m.date);
@@ -224,11 +230,26 @@ p{
       const openUrl = new URL(location.href);
       openUrl.searchParams.set("memo", m.id);
 
+      const n = countMap.get(m.id) || 0;
+      const badgeText = n === 0 ? "コメントなし" : `コメント ${n}`;
+
       const entry = document.createElement("div");
       entry.className = "entry";
       entry.innerHTML = `
-        <div class="date">${safeDate}</div>
-        <p>${safeBody}</p>
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="date">${safeDate}</div>
+          <span style="
+            font-size:12px;
+            padding:4px 10px;
+            border-radius:999px;
+            border:1px solid rgba(180,120,150,.35);
+            background: rgba(255,255,255,.75);
+            opacity:.9;
+          ">💬 ${badgeText}</span>
+        </div>
+
+        <p style="margin-top:8px;">${safeBody}</p>
+
         <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:10px;flex-wrap:wrap;">
           <a href="${openUrl.toString()}"
              style="
@@ -241,6 +262,7 @@ p{
                color:var(--text);
              "
           >📌 このメモを開く</a>
+
           <a href="${COMMENT_FORM_PREFILL_URL + encodeURIComponent(m.id)}"
              target="_blank" rel="noopener"
              style="
@@ -341,7 +363,7 @@ p{
         }
         renderDetail(memo, comments);
       } else {
-        renderList(memos);
+        renderList(memos, comments);
       }
     }catch(e){
       console.error(e);
