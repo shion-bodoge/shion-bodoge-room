@@ -164,20 +164,20 @@ p{
       throw new Error("memos.csv のヘッダーに id,date,body が必要です");
     }
 
-    const memos = table.slice(1).map(r => ({
+    const memos = table.slice(1).map(r => {
       const tagsRaw = (iTags >= 0 ? (r[iTags] ?? "") : "").toString();
       const tags = tagsRaw
         .split(",")
         .map(t => t.trim())
         .filter(Boolean);
 
-      return {
+     return {
         id: (r[iId] ?? "").trim(),
         date: (r[iDate] ?? "").trim(),
         body: (r[iBody] ?? "").trim(),
         tags,
-      };
-    }).filter(m => m.id && m.body);
+     };
+   }).filter(m => m.id && m.body);
 
     memos.reverse(); // 新しい順
     return memos;
@@ -434,20 +434,21 @@ p{
           return;
         }
         renderDetail(memo, comments);
-      } else {
-        renderList(memos, comments);
-      } else {
-        renderTagBar(memos);
-
-        const filtered = activeTag
-          ? memos.filter(m => (m.tags || []).includes(activeTag))
-          : memos;
-
-        renderList(filtered, comments);
+        return;
       }
+
+      // 一覧表示
+      renderTagBar(memos);
+
+      const filtered = activeTag
+        ? memos.filter(m => (m.tags || []).includes(activeTag))
+        : memos;
+
+      renderList(filtered, comments);
+
     }catch(e){
       console.error(e);
-      root.innerHTML = `<div class="entry"><p>読み込みに失敗しました：${escapeHtml(e.message)}</p></div>`;
+      root.innerHTML = `<div class="entry"><p>読み込みに失敗しました:${escapeHtml(e.message)}</p></div>`;
     }
   }
 
