@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>研究メモ</title>
+
+<style>
+:root{
+  --text:#2f2830;
+}
+
+body{
+  margin:0;
+  font-family: system-ui, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(900px 600px at 15% 5%, rgba(255,200,220,.25), transparent 60%),
+    radial-gradient(1000px 700px at 85% 10%, rgba(255,220,235,.28), transparent 60%),
+    linear-gradient(180deg, #fff9fc 0%, #f7eef3 100%);
+}
+
+header{
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background: rgba(255,255,255,.6);
+  backdrop-filter: blur(6px);
+  border-bottom:1px solid rgba(180,120,150,.2);
+}
+
+header a{
+  text-decoration:none;
+  font-size:14px;
+  color:var(--text);
+  opacity:.7;
+}
+header a:hover{ opacity:1; }
+
+.container{
+  max-width:720px;
+  margin:60px auto;
+  padding:0 20px;
+}
+
+h1{
+  font-size:26px;
+  margin:0 0 8px;
+}
+
+.subtitle{
+  margin:0 0 26px;
+  opacity:.75;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:14px;
+}
+
+.card{
+  text-decoration:none;
+  color:var(--text);
+  background: rgba(255,255,255,.90);
+  border-radius:18px;
+  padding:20px 18px;
+  border:2px solid rgba(180,120,150,.30);
+  box-shadow: 0 10px 25px rgba(120,70,100,.06);
+  transition: transform .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.card:hover{
+  transform: translateY(-2px);
+  border-color: rgba(180,120,150,.55);
+  background: rgba(255,255,255,.96);
+}
+
+.emoji{ font-size:22px; margin-bottom:10px; }
+.title{ font-size:16px; font-weight:700; margin-bottom:6px; }
+.desc{ font-size:13px; opacity:.75; line-height:1.6; }
+
+.badge{
+  display:inline-block;
+  margin-top:10px;
+  font-size:12px;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(180,120,150,.35);
+  background: rgba(255,255,255,.75);
+  opacity:.9;
+}
+
+@media (max-width: 680px){
+  .grid{ grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div>🧪 研究メモ</div>
+  <a href="index.html">← 研究ルームへ戻る</a>
+</header>
+
+<div class="container">
+  <h1>🧪 研究メモ</h1>
+  <p class="subtitle">目的別に分けて置いてあります。</p>
+
+  <div class="grid">
+    <a class="card" href="omoitsuki.html">
+      <div class="emoji">📝</div>
+      <div class="title">思いつきの倉庫</div>
+      <div class="desc">思いついたこと、どんどん書いていく</div>
+      <span class="badge">コメントOK</span>
+    </a>
+
+    <a class="card" href="records.html">
+      <div class="emoji">📒</div>
+      <div class="title">対戦の記録</div>
+      <div class="desc">あの日の1戦を振り返る</div>
+      <span class="badge">記録保管</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>
