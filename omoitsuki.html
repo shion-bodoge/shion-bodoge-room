@@ -32,6 +32,9 @@ header{
   background: rgba(255,255,255,.6);
   backdrop-filter: blur(6px);
   border-bottom:1px solid rgba(180,120,150,.2);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 header a{
@@ -49,6 +52,21 @@ header a:hover{
   max-width:720px;
   margin:60px auto;
   padding:0 20px;
+}
+
+.topArea{
+  position: sticky;
+  top: 64px;              /* ←ヘッダーの高さ分。ズレたらここだけ調整 */
+  z-index: 40;
+  padding: 16px 0 10px;
+  background: rgba(255,255,255,.45);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(180,120,150,.18);
+}
+
+/* sticky中は上下余白が詰まるのでsubtitleの余白を少し調整（好み） */
+.topArea .subtitle{
+  margin-bottom: 12px;
 }
 
 h1{
@@ -98,9 +116,12 @@ p{
 
 <div class="container">
 
+<div class="topArea">
 <h1>📝 思いつきの倉庫</h1>
 <p class="subtitle">思いついたこと、どんどん書こう</p>
 <div id="tagBar"></div>
+</div>
+
 <div id="entries"></div>
 
 </div>
