@@ -3,7 +3,7 @@ name: Sync Google Sheets CSV
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *" # 30分ごと
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
@@ -17,13 +17,17 @@ jobs:
 
       - name: Download memos.csv
         run: |
+          set -eux
           mkdir -p data
           curl -L --fail \
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdKlEcKEIDZUJUhrwvVmSiG17NIx6H2E9i2CjIBKoG7nHYTnzVtgLvO4Xeherq_RfvMqWsQ_k1E7LL/pub?gid=0&single=true&output=csv" \
             -o data/memos.csv
+          ls -la data
+          head -n 5 data/memos.csv || true
 
       - name: Commit if changed
         run: |
+          set -eux
           if git diff --quiet; then
             echo "No changes"
             exit 0
@@ -31,5 +35,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/memos.csv
+          git status
           git commit -m "chore: sync memos.csv"
           git push
