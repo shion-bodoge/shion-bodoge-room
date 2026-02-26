@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web制作のご相談｜しおんのボドゲ部屋</title>
+  <meta name="description" content="世界観を大切にしたWebサイトを制作します。まったり系・成長型の活動者さん向け。静的HTMLで軽量に、応援されやすい導線を整えます。" />
+
+  <meta property="og:title" content="Web制作のご相談｜しおんのボドゲ部屋" />
+  <meta property="og:description" content="世界観を大切にしたWebサイトを制作します。静的HTMLで軽量に、応援されやすい導線を整えます。" />
+  <meta property="og:type" content="website" />
+
+  <style>
+    :root{
+      /* 営業ページは “水色寄り” にして、デモLP（桜ベージュ）と差別化 */
+      --bg:#f2f6fb;
+      --surface:#ffffff;
+      --text:#253041;
+      --muted:#5b6676;
+
+      --accent:#73a9d8;  /* 水色アクセント */
+      --cta:#2f6fb2;
+
+      --line:rgba(37,48,65,.12);
+      --shadow:0 8px 20px rgba(37,48,65,.08);
+      --radius:14px;
+      --max:980px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; padding:0; }
+    body{
+      color:var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
+      background:var(--bg);
+      line-height:1.7;
+    }
+    a{ color:inherit; text-decoration:none; }
+    .wrap{ max-width:var(--max); margin:0 auto; padding:24px 18px 70px; }
+
+    /* アンカー見切れ対策（stickyヘッダー分） */
+    [id]{ scroll-margin-top: 76px; }
+
+    .section{ margin-top:22px; }
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+    h1{ margin:0 0 10px; font-size:clamp(26px, 4.2vw, 40px); line-height:1.2; }
+    h2{ margin:0 0 10px; font-size:18px; letter-spacing:.02em; }
+    p{ margin:0; }
+    .small{ font-size:13px; color:var(--muted); }
+    .muted{ color:var(--muted); }
+
+    /* 背景エフェクト（装飾PNGはここに後で重ねる） */
+    .bgfx{
+      position:fixed; inset:0; pointer-events:none; z-index:-1;
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(115,169,216,.10), transparent 62%),
+        radial-gradient(900px 520px at 80% 90%, rgba(37,48,65,.05), transparent 60%);
+    }
+
+    .hero{ padding: 26px 4px 6px; }
+
+    /* ヘッダー */
+    header{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter:saturate(1.2) blur(10px);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      max-width:var(--max); margin:0 auto; padding:10px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.02em; }
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      background:var(--accent);
+      box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+    nav a{
+      font-size:14px; color:var(--muted);
+      padding:8px 10px; border-radius:999px;
+    }
+    nav a:hover{
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      color:var(--text);
+    }
+
+    /* ボタン */
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:11px 14px; border-radius:999px;
+      border:1px solid var(--cta);
+      background:transparent; color:var(--text);
+      font-weight:650; font-size:14px;
+      min-width:160px;
+    }
+    .btn.primary{
+      background:var(--accent);
+      border-color: color-mix(in srgb, var(--cta) 75%, var(--text));
+      color:#fff;
+    }
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{ transform:translateY(0); }
+
+    /* グリッド */
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+
+    /* リスト */
+    .list{ display:grid; gap:10px; }
+    .row{
+      display:flex; justify-content:space-between; gap:12px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(255,255,255,.75);
+    }
+    .row b{ font-weight:700; }
+
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px;
+      color: color-mix(in srgb, var(--text) 78%, var(--muted));
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+
+    /* FAQ */
+    details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(255,255,255,.75);
+      padding:10px 12px;
+    }
+    summary{ cursor:pointer; font-weight:700; }
+    details p{ margin-top:8px; }
+
+    footer{ margin-top:34px; color:var(--muted); font-size:13px; text-align:center; }
+
+    @media (max-width: 860px){
+      .grid2{ grid-template-columns:1fr; }
+      .grid3{ grid-template-columns:1fr; }
+      nav{ display:none; }
+      .btn{ width:100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bgfx" aria-hidden="true"></div>
+
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <a href="index.html" aria-label="トップへ">しおんのボドゲ部屋</a>
+        <span class="muted">/ Web制作</span>
+      </div>
+      <nav aria-label="ページ内ナビ">
+        <a href="#service">できること</a>
+        <a href="#price">料金</a>
+        <a href="#flow">流れ</a>
+        <a href="#works">実績</a>
+        <a href="#contact">相談</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- HERO -->
+    <section class="hero">
+      <span class="badge">配信者・活動者向け｜静的HTMLで軽量制作</span>
+      <h1>世界観を大切にしたWebサイトを制作します。</h1>
+      <p class="muted">
+        まったり系・成長型の活動者さん向けに、応援されやすい導線と居心地のよい空気感を整えます。
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="#price">料金を見る</a>
+        <a class="btn" href="#works">実績を見る</a>
+        <a class="btn" href="#contact">相談する</a>
+      </div>
+      <p class="small" style="margin-top:10px;">
+        ※ご依頼を検討中の方向けのご案内ページです。
+      </p>
+    </section>
+
+    <!-- SERVICE -->
+    <section id="service" class="section">
+      <div class="card">
+        <h2>できること</h2>
+        <div class="grid2">
+          <div class="list">
+            <div class="row"><b>1ページLP</b><span class="small">プロフィール / スケジュール / リンク等</span></div>
+            <div class="row"><b>世界観設計</b><span class="small">配色・余白・装飾（控えめ）</span></div>
+            <div class="row"><b>レスポンシブ</b><span class="small">スマホでも崩れない</span></div>
+            <div class="row"><b>軽量設計</b><span class="small">静的HTMLで表示が速い</span></div>
+          </div>
+          <div>
+            <p class="small">
+              配信者目線で「見てもらう順番」と「迷わない導線」を作ります。<br><br>
+              完全テンプレではなく、活動の空気感に合わせて整えるのが得意です。
+            </p>
+            <p class="small" style="margin-top:10px;">
+              オプションで：タブ切替 / 簡易フィルター / ダークモードなど、軽いJS追加も可能です。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICE -->
+    <section id="price" class="section">
+      <div class="card">
+        <h2>料金</h2>
+        <div class="grid3">
+          <div class="card" style="box-shadow:none;">
+            <h2 style="margin-bottom:6px;">ベーシック</h2>
+            <p style="font-weight:800; font-size:22px; margin-bottom:6px;">20,000円〜</p>
+            <p class="small">1ページLP / レスポンシブ / 修正2回</p>
+          </div>
+          <div class="card" style="box-shadow:none;">
+            <h2 style="margin-bottom:6px;">スタンダード</h2>
+            <p style="font-weight:800; font-size:22px; margin-bottom:6px;">30,000円〜</p>
+            <p class="small">文章調整 / セクション追加 / OGP整備</p>
+          </div>
+          <div class="card" style="box-shadow:none;">
+            <h2 style="margin-bottom:6px;">オプション</h2>
+            <p class="small">軽いJS追加：+5,000〜15,000円</p>
+            <p class="small">画像軽量化：+3,000円</p>
+            <p class="small">追加修正：+3,000円/回</p>
+          </div>
+        </div>
+        <p class="small" style="margin-top:10px;">
+          ※実績作り期間の目安です。内容・規模により調整します。
+        </p>
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section id="flow" class="section">
+      <div class="card">
+        <h2>制作の流れ</h2>
+        <div class="list" role="list">
+          <div class="row" role="listitem"><b>1. ヒアリング（15分）</b><span class="small">雰囲気・目的・参考サイト</span></div>
+          <div class="row" role="listitem"><b>2. ワイヤー提案</b><span class="small">配置と導線を決める</span></div>
+          <div class="row" role="listitem"><b>3. デザイン確認</b><span class="small">配色・余白・装飾</span></div>
+          <div class="row" role="listitem"><b>4. コーディング</b><span class="small">静的HTMLで制作</span></div>
+          <div class="row" role="listitem"><b>5. 修正（2回まで）</b><span class="small">見た目・文言など</span></div>
+          <div class="row" role="listitem"><b>6. 納品</b><span class="small">HTML一式 / 公開手順も案内</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKS -->
+    <section id="works" class="section">
+      <div class="card">
+        <h2>実績（ポートフォリオ）</h2>
+        <p class="small">
+          現在、実績ページは準備中です。まずはデモサイトをご覧ください。<br>
+          （モニター制作で実績を増やしています）
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="#contact" aria-label="相談へ">モニター相談する</a>
+          <a class="btn" href="demo-vtuber-lp.html" aria-label="デモLPを見る">デモLPを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="card">
+        <h2>ご相談</h2>
+        <p class="small">
+          「まずは見積もりだけ」「こんな雰囲気で作れる？」など、お気軽にどうぞ。
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="mailto:shion98.bodoge@gmail.com">メールで相談</a>
+          <a class="btn" href="#" onclick="alert('フォームは後で設置でOK！'); return false;">フォーム（後で設置）</a>
+        </div>
+
+        <p class="small" style="margin-top:12px;">
+          強くなりたい人を、そっと支えるサイトを作りたい。そんな気持ちで制作しています。
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <div>© しおんのボドゲ部屋｜Web制作</div>
+      <div class="small">静的HTML / 世界観重視 / まったり活動者向け</div>
+    </footer>
+  </main>
+</body>
+</html>
