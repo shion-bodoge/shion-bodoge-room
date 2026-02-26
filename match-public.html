@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>対戦の記録（公開） | しおんの研究メモ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@600&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --card:#ffffffcc;
+    --stroke:rgba(255,184,112,.55);
+    --text:#2f2830;
+    --muted:#6c6370;
+    --accent:#ff7a2f;
+    --accent2:#ffb870;
+    --danger:#d83a3a;
+    --ok:#1d8f5a;
+    --shadow: 0 14px 38px rgba(0,0,0,.08);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(900px 600px at 15% 5%, rgba(255,200,220,.28), transparent 60%),
+      radial-gradient(900px 700px at 85% 15%, rgba(255,184,112,.25), transparent 60%),
+      linear-gradient(180deg, #fffaf5, #fff3ea);
+    min-height:100vh;
+  }
+
+  header{
+    padding:18px 24px 10px;
+    max-width:1100px;
+    margin:0 auto;
+    display:flex;
+    gap:12px;
+    align-items:flex-end;
+    justify-content:space-between;
+  }
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 16px;
+    background: rgba(255,255,255,.65);
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    backdrop-filter: blur(8px);
+  }
+  .topbarLeft{
+    font-size:13px;
+    color: var(--muted);
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .topbarRight{
+    font-size:13px;
+    color: var(--muted);
+    text-decoration:none;
+  }
+  .topbarRight:hover{
+    text-decoration:underline;
+  }
+  .title{
+    font-weight:600;
+    font-size:20px;
+    letter-spacing:.02em;
+  }
+  .sub{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .headerRight{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .chip{
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid rgba(0,0,0,.08);
+    background:#fff;
+    color:var(--muted);
+  }
+  .backBtn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.12);
+    color:var(--text);
+    text-decoration:none;
+    font-weight:800;
+  }
+  .backBtn:hover{ border-color: rgba(255,122,47,.45); }
+
+  .wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 16px 22px;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:14px;
+  }
+  @media (max-width: 980px){
+    .wrap{grid-template-columns:1fr}
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--stroke);
+    border-radius:var(--r);
+    box-shadow:var(--shadow);
+    backdrop-filter: blur(8px);
+  }
+  .card h2{
+    font-size:14px;
+    margin:0;
+    padding:14px 14px 10px;
+    border-bottom:1px solid rgba(0,0,0,.06);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  /* tools */
+  .tools{
+    padding:12px 14px 14px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  input, select{
+    padding:10px 10px;
+    border-radius:12px;
+    border:1px solid rgba(0,0,0,.12);
+    background:#fff;
+    color:var(--text);
+    outline:none;
+  }
+  .tools input{max-width:320px; flex:1 1 240px}
+  button{
+    border:0;
+    border-radius:12px;
+    padding:10px 12px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .ghost{
+    background:#fff;
+    border:1px solid rgba(0,0,0,.12);
+    color:var(--text);
+  }
+
+  /* list */
+  .list{padding:10px 14px 14px}
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 8px;
+  }
+  td{
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+    padding:10px;
+    font-size:13px;
+    vertical-align:top;
+  }
+  td:first-child{border-radius:12px 0 0 12px}
+  td:last-child{border-radius:0 12px 12px 0}
+  .mini{color:var(--muted); font-size:12px}
+  .empty{color:var(--muted); padding:10px 0; font-size:13px}
+
+  .rowlink{ cursor:pointer; }
+  .rowlink:hover td{
+    border-color: rgba(255,122,47,.35);
+    box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  }
+  .active td{ border-color: rgba(255,122,47,.55); }
+
+  /* detail */
+  .detail{padding:14px}
+  .detailTitle{
+    font-family:"Zen Old Mincho", serif;
+    font-size:18px;
+    margin:0;
+  }
+  .meta{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:8px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 10px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+  }
+  .win{color:var(--ok); border-color: rgba(29,143,90,.25)}
+  .lose{color:var(--danger); border-color: rgba(216,58,58,.25)}
+  .box{
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:14px;
+    padding:10px;
+    margin-top:10px;
+  }
+  .cap{font-size:12px; color:var(--muted); margin-bottom:6px}
+  .body{white-space:pre-wrap; line-height:1.55; font-size:14px}
+  .twoCol{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+    margin-top:10px;
+  }
+  @media (max-width: 980px){
+    .twoCol{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbarLeft">🧪 対戦の記録</div>
+  <a class="topbarRight" href="memos.html">← 研究メモへ戻る</a>
+</div>
+
+<header>
+  <div>
+    <div class="title">対戦の記録</div>
+    <div class="sub">一覧をクリックすると右側に詳細が表示されます</div>
+  </div>
+  <div class="headerRight">
+    <div class="chip" id="countChip">読み込み中…</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="card">
+    <h2>
+      <span>一覧</span>
+      <span class="chip" id="todayChip">—</span>
+    </h2>
+
+    <div class="tools">
+      <input id="q" placeholder="検索（メガミ/相手/タグ/反省点/改善点/BAN）" />
+      <select id="filter">
+        <option value="ALL">全て</option>
+        <option value="WIN">勝ちのみ</option>
+        <option value="LOSE">負けのみ</option>
+        <option value="TODAY">今日のみ</option>
+      </select>
+      <button class="ghost" id="reload" type="button">再読み込み</button>
+    </div>
+
+    <div class="list" id="listArea"></div>
+  </section>
+
+  <section class="card detail">
+    <h2>
+      <span>詳細</span>
+      <span class="chip" id="detailChip">—</span>
+    </h2>
+
+    <h3 class="detailTitle" id="detailTitle">—</h3>
+    <div class="meta" id="detailMeta">一覧から選択してください</div>
+
+      <div class="twoCol">
+        <div class="box">
+        <div class="cap">今日の勝率</div>
+        <div class="body"><span id="winrateTodayBig" style="font-weight:900;font-size:22px;">—</span></div>
+        <div class="mini" id="todayWL">—</div>
+      </div>
+
+      <div class="box">
+        <div class="cap">全体勝率</div>
+        <div class="body"><span id="winrateAllBig" style="font-weight:900;font-size:22px;">—</span></div>
+        <div class="mini" id="allWL">—</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="cap">直近14日 勝率推移</div>
+      <canvas id="winChart" width="640" height="220" style="width:100%;height:220px;"></canvas>
+      <div class="mini" id="chartNote">—</div>
+    </div> 
+
+    <div class="twoCol">
+      <div class="box">
+        <div class="cap">自分メガミ（使用）</div>
+        <div class="body" id="detailMyTeam">—</div>
+      </div>
+      <div class="box">
+        <div class="cap">相手メガミ（使用）</div>
+        <div class="body" id="detailTheirTeam">—</div>
+      </div>
+    </div>
+
+    <div class="twoCol">
+      <div class="box">
+        <div class="cap">BAN（自分側）</div>
+        <div class="body" id="detailMyBan">—</div>
+      </div>
+      <div class="box">
+        <div class="cap">BAN（相手側）</div>
+        <div class="body" id="detailTheirBan">—</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="cap">反省点</div>
+      <div class="body" id="detailPivot">—</div>
+    </div>
+    <div class="box">
+      <div class="cap">改善点</div>
+      <div class="body" id="detailNext">—</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const DATA_URL = "./data/matches.json";
+  const $ = (id)=>document.getElementById(id);
+
+  let ALL_ROWS = [];
+  let ACTIVE_ID = null;
+
+  const todayKey = ()=>{
+    const d = new Date();
+    const pad = (n)=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  };
+
+  function escapeHtml(s){
+    return String(s||"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function pairName(a,b){
+    const x = (a||"").trim();
+    const y = (b||"").trim();
+    if(x && y) return `${x}/${y}`;
+    return x || y || "?";
+  }
+
+  function calcToday(rows){
+    const t = todayKey();
+    const today = rows.filter(r => (r.ts||"").startsWith(t));
+    const w = today.filter(r => r.result==="WIN").length;
+    const l = today.filter(r => r.result==="LOSE").length;
+    return {w, l};
+  }
+
+  function pickNewest(rows){
+    if(rows.length===0) return null;
+    return rows.reduce((best, r)=> (best?.id ?? 0) < (r?.id ?? 0) ? r : best, rows[0]);
+  }
+
+  function formatRes(r){
+    const isWin = r.result==="WIN";
+    return {
+      resClass: isWin ? "badge win" : "badge lose",
+      resText: isWin ? "勝ち" : "負け",
+      mark: isWin ? "◎" : "×"
+    };
+  }
+
+  function renderDetail(r){
+    if(!r){
+      $("detailTitle").textContent = "—";
+      $("detailMeta").textContent = "一覧から選択してください";
+      $("detailMyTeam").textContent = "—";
+      $("detailTheirTeam").textContent = "—";
+      $("detailMyBan").textContent = "—";
+      $("detailTheirBan").textContent = "—";
+      $("detailPivot").textContent = "—";
+      $("detailNext").textContent = "—";
+      $("detailChip").textContent = "—";
+      return;
+    }
+
+    const {resClass, resText} = formatRes(r);
+
+    const myTeam = pairName(r.my1, r.my2);
+    const theirTeam = pairName(r.their1, r.their2);
+
+    $("detailTitle").textContent = `${myTeam} vs ${theirTeam}`;
+    $("detailChip").textContent = r.ts || "—";
+
+    const tags = [];
+    tags.push(`<span class="${resClass}">● ${resText}</span>`);
+    if(r.turn) tags.push(`<span class="badge">${escapeHtml(r.turn)}</span>`);
+    if(r.opponent) tags.push(`<span class="badge">相手：${escapeHtml(r.opponent)}</span>`);
+    if(r.tag) tags.push(`<span class="badge">#${escapeHtml(r.tag)}</span>`);
+    if(r.ts) tags.push(`<span class="badge">${escapeHtml(r.ts)}</span>`);
+    $("detailMeta").innerHTML = tags.join(" ");
+
+    $("detailMyTeam").textContent = myTeam;
+    $("detailTheirTeam").textContent = theirTeam;
+    $("detailMyBan").textContent = r.myBan || "—";
+    $("detailTheirBan").textContent = r.theirBan || "—";
+    $("detailPivot").textContent = r.pivot || "—";
+    $("detailNext").textContent = r.next || "—";
+  }
+
+  function getFilteredRows(){
+    const q = $("q").value.trim().toLowerCase();
+    const f = $("filter").value;
+
+    const tKey = todayKey();
+    let rows = ALL_ROWS.slice();
+
+    if(f==="WIN") rows = rows.filter(r=>r.result==="WIN");
+    if(f==="LOSE") rows = rows.filter(r=>r.result==="LOSE");
+    if(f==="TODAY") rows = rows.filter(r=>(r.ts||"").startsWith(tKey));
+
+    if(q){
+      rows = rows.filter(r=>{
+        const hay = [
+          r.opponent, r.my1, r.my2, r.their1, r.their2, r.turn, r.tag, r.pivot, r.next, r.ts, r.result,
+          r.myBan, r.theirBan
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    rows.sort((a,b)=> (b.id ?? 0) - (a.id ?? 0));
+    return rows;
+  }
+
+            <div class="twoCol">
+              <div class="box">
+                <div class="cap">今日の勝率</div>
+                <div class="body"><span id="winrateTodayBig" style="font-weight:900;font-size:22px;">—</span></div>
+                <div class="mini" id="todayWL">—</div>
+              </div>
+
+             <div class="box">
+               <div class="cap">全体勝率</div>
+               <div class="body"><span id="winrateAllBig" style="font-weight:900;font-size:22px;">—</span></div>
+               <div class="mini" id="allWL">—</div>
+             </div>
+            </div>
+
+            <div class="box">
+              <div class="cap">直近14日 勝率推移</div>
+              <canvas id="winChart" width="640" height="220" style="width:100%;height:220px;"></canvas>
+              <div class="mini" id="chartNote">—</div>
+            </div> 
+
+  function renderList(){
+    const rows = getFilteredRows();
+
+    if(rows.length===0){
+      $("listArea").innerHTML = `<div class="empty">該当なし</div>`;
+      return;
+    }
+
+    let html = `<table><tbody>`;
+    for(const r of rows){
+      const {mark, resText} = formatRes(r);
+
+      const myTeam = pairName(r.my1, r.my2);
+      const theirTeam = pairName(r.their1, r.their2);
+
+      const shortPivot = (r.pivot || "").trim();
+      const pivotOne = shortPivot.length > 34 ? shortPivot.slice(0,34) + "…" : shortPivot;
+
+      const isActive = (ACTIVE_ID !== null && String(r.id) === String(ACTIVE_ID));
+      html += `
+        <tr class="rowlink ${isActive ? "active" : ""}" data-id="${escapeHtml(String(r.id ?? ""))}">
+          <td style="width:94px">
+            <span class="mini">${escapeHtml((r.ts||"").slice(11))}</span><br>
+            <b>${mark} ${resText}</b>
+          </td>
+          <td>
+            <b>${escapeHtml(myTeam)} vs ${escapeHtml(theirTeam)}</b>
+            ${r.tag ? `<span class="mini">　#${escapeHtml(r.tag)}</span>` : ""}
+            ${pivotOne ? `<div class="mini">反省：${escapeHtml(pivotOne)}</div>` : `<div class="mini">反省：—</div>`}
+          </td>
+        </tr>
+      `;
+    }
+    html += `</tbody></table>`;
+    $("listArea").innerHTML = html;
+
+    document.querySelectorAll("[data-id]").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const id = el.getAttribute("data-id");
+        ACTIVE_ID = id;
+        const r = ALL_ROWS.find(x => String(x.id) === String(id));
+        renderDetail(r);
+        renderList();
+      });
+    });
+  }
+
+  async function fetchRows(){
+    const url = `${DATA_URL}?v=${Date.now()}`;
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw new Error(`fetch failed: ${res.status}`);
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  async function refresh(){
+    $("countChip").textContent = "読み込み中…";
+    try{
+      ALL_ROWS = await fetchRows();
+      $("countChip").textContent = `${ALL_ROWS.length}件`;
+
+      const tKey = todayKey();
+      const todayRows = ALL_ROWS.filter(r => (r.ts||"").startsWith(tKey));
+
+      const today = calcWinRate(todayRows);
+      const all = calcWinRate(ALL_ROWS);
+
+      document.getElementById("winrateTodayBig").textContent = (today.rate===null) ? "—" : `${today.rate}%`;
+      document.getElementById("todayWL").textContent = `今日：${today.w}勝${today.l}敗`;
+
+      document.getElementById("winrateAllBig").textContent = (all.rate===null) ? "—" : `${all.rate}%`;
+      document.getElementById("allWL").textContent = `全体：${all.w}勝${all.l}敗`;
+
+      // グラフ描画
+      drawWinChart(ALL_ROWS);
+
+      const {w,l} = calcToday(ALL_ROWS);
+      $("todayChip").textContent = `今日：${w}勝${l}敗`;
+
+      const newest = pickNewest(ALL_ROWS);
+      ACTIVE_ID = newest?.id ?? null;
+      renderDetail(newest);
+      renderList();
+    }catch(e){
+      $("countChip").textContent = "読み込み失敗";
+      $("listArea").innerHTML = `<div class="empty">data/matches.json を読み込めませんでした。ファイル/パスを確認してね。</div>`;
+      renderDetail(null);
+      $("detailMeta").textContent = String(e);
+    }
+  }
+
+  $("q").addEventListener("input", ()=>{ renderList(); });
+  $("filter").addEventListener("change", ()=>{ renderList(); });
+  $("reload").addEventListener("click", refresh);
+
+  refresh();
+</script>
+
+</body>
+</html>

@@ -142,7 +142,6 @@
     .room-research::after{
       content:"";
       position:absolute;
-      //inset: 8px;               /* 内側にもう一本 */
       border-radius: 16px;
       border: 1px solid rgba(240,223,210,.95);
       pointer-events: none;
@@ -153,9 +152,15 @@
       background: rgba(255,255,255,.96);
       position: relative;
     }
+    .room-blog{
+      border: 2px solid rgba(216, 139, 149, 0.8);
+      box-shadow: 0 14px 32px rgba(216, 139, 149, 0.1);
+      background: rgba(255,255,255,.96);
+      position: relative;
+    }
     .room-make{
-      border: 2px solid rgba(120, 160, 135, 0.8);
-      box-shadow: 0 14px 32px rgba(95, 135, 110, 0.1);
+      border: 2px solid rgba(185, 163, 219, 0.9);
+      box-shadow: 0 14px 32px rgba(185, 163, 219, 0.1);
       background: rgba(255,255,255,.96);
       position: relative;
     }
@@ -225,6 +230,21 @@
       font-size: 12.5px;
       border-radius: 12px !important;
     }
+
+    .headerLinks{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .heroLinks{
+      margin-top: 12px;
+    }
+    .aboutBtn{
+      background: rgba(255,255,255,.55);
+      border: 2px solid rgba(255,184,112,.6);
+    }
+
     /* 右上のYouTubeボタン（サイトの薄オレンジに統一） */
     .btn-youtube{
       display:inline-flex;
@@ -332,6 +352,11 @@
       display: block;
     }
 
+    .profile {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(255,184,112,.35);
+    }
+
     footer{
       margin-top: 18px;
       color: var(--muted);
@@ -392,8 +417,10 @@
         </div>
       </div>
 
-      <!-- ここにYouTubeチャンネルURLを入れると、右上のボタンが使えるようになります -->
-      <a class="btn-youtube" href="#" id="youtubeLink">YouTubeへ</a>
+      <div class="headerLinks">
+         <a class="btn-youtube" href="#" id="youtubeLink">YouTube</a>
+         <a class="btn-youtube" href="#" id="XLink">X</a>
+      </div>
     </header>
 
     <main>
@@ -405,6 +432,9 @@
         </p>
         <div class="tagline">
           <b>まったりゲーム / 初心者歓迎 / 参加型あり</b>
+        </div>
+        <div class="heroLinks">
+          <a class="btn small aboutBtn" href="#about">🍊 しおんって？</a>
         </div>
 
         <div class="grid" role="list" aria-label="部屋一覧">
@@ -437,7 +467,21 @@
               <a class="btn primary" href="memos.html">研究メモ</a>
             </div>
           </section>
-          
+
+          <section class="card room-blog" role="listitem" aria-label="紹介ルーム">
+            <div class="badge">
+              <img src="sakura.png" class="roomIcon" alt="紹介ルーム">
+              ゲーム紹介ルーム
+            </div>
+            <h3>趣味を語る部屋</h3>
+            <p>
+              好きや楽しいを共有する場所。気になったら配信で一緒に遊ぼう。
+            </p>
+            <div class="btnrow">
+              <a class="btn primary" href="#" id="blogLink">紹介ブログへ</a>
+            </div>
+          </section>
+
           <section class="card room-oyasumi" role="listitem" aria-label="おやすみ日記">
              <div class="badge">
              <img src="oyasumi.png" class="roomIcon" alt="おやすみ日記">
@@ -470,7 +514,7 @@
       </section>
 
         <section class="section" id="schedule" aria-label="今週の配信予定">
-          <h4>今週の配信予定（例）</h4>
+          <h4>今週の配信予定</h4>
           <div class="scheduleMedia" aria-label="今週の予定の画像">
             <img src="schedule.png" alt="今週の配信予定（画像）" />
           </div>
@@ -501,6 +545,16 @@
           </ul>
       </section>
 
+      <section class="section profile" id="about">
+        <h4>🍊 しおんって？</h4>
+        <p>
+         ボードゲームと推し語りが大好きです。<br>
+         ゆるっと遊んだり、ちょっと本気で研究したり...<br>
+         この部屋は、「楽しい」を置いていく場所です。<br>
+         ふらっと遊びに来てくれたら、それだけでうれしいです🌸
+        </p>
+      </section>
+
       <footer>
         <div class="hint">© <span id="year"></span> しおんのボドゲ部屋</div>
         <div class="mono">v0.1</div>
@@ -513,8 +567,10 @@
     const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/channel/UCrXd_KijTSd_iNUo2H32t0A";   // 例: "https://www.youtube.com/@yourchannel"
     const LATEST_URL = "https://youtube.com/live/twx6W-o1ulI";            // 例: 最新動画や配信のURL
     const DECK_BUILDER_URL = "";      // 例: あなたのデッキ構築システムのURL
+    const BLOGLINK_URL = "https://shionbodoge.com/";       // ブログURL
+    const XLINK_URL = "https://x.com/shionbodoge";       // XURL
     const SCHEDULE_TUE_URL = "https://youtube.com/live/88f58ieyVBA"; // 配信URL
-    const SCHEDULE_WED_URL = ""; // 動画URL
+    const SCHEDULE_WED_URL = "https://youtu.be/IMyrrpWHIhw"; // 動画URL
     const SCHEDULE_THU_URL = "https://youtube.com/live/4cIe7VT4Qu8"; // 参加型URL
     const SCHEDULE_SAT_URL = ""; // 調整枠（配信するならURL / 休みなら空でOK）
 
@@ -537,6 +593,8 @@
     setLink("youtubeLink", YOUTUBE_CHANNEL_URL);
     setLink("watchLatest", LATEST_URL);
     setLink("deckBuilder", DECK_BUILDER_URL);
+    setLink("blogLink", BLOGLINK_URL);
+    setLink("XLink", XLINK_URL);
     
     setLink("scheduleTue", SCHEDULE_TUE_URL);
     setLink("scheduleWed", SCHEDULE_WED_URL);
@@ -552,6 +610,4 @@
     });
   </script>
 </body>
-
 </html>
-
