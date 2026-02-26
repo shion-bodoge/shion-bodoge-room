@@ -374,7 +374,14 @@
     const today = rows.filter(r => (r.ts||"").startsWith(t));
     const w = today.filter(r => r.result==="WIN").length;
     const l = today.filter(r => r.result==="LOSE").length;
-    return {w, l};
+    return {today, w, l};
+  }
+
+  function calcWinRate(rows){
+    const w = rows.filter(r=>r.result==="WIN").length;
+    const l = rows.filter(r=>r.result==="LOSE").length;
+    const rate = (w+l)>0 ? Math.round((w/(w+l))*100) : null;
+    return {w,l,rate};
   }
 
   function pickNewest(rows){
@@ -454,26 +461,6 @@
     return rows;
   }
 
-            <div class="twoCol">
-              <div class="box">
-                <div class="cap">今日の勝率</div>
-                <div class="body"><span id="winrateTodayBig" style="font-weight:900;font-size:22px;">—</span></div>
-                <div class="mini" id="todayWL">—</div>
-              </div>
-
-             <div class="box">
-               <div class="cap">全体勝率</div>
-               <div class="body"><span id="winrateAllBig" style="font-weight:900;font-size:22px;">—</span></div>
-               <div class="mini" id="allWL">—</div>
-             </div>
-            </div>
-
-            <div class="box">
-              <div class="cap">直近14日 勝率推移</div>
-              <canvas id="winChart" width="640" height="220" style="width:100%;height:220px;"></canvas>
-              <div class="mini" id="chartNote">—</div>
-            </div> 
-
   function renderList(){
     const rows = getFilteredRows();
 
@@ -521,11 +508,127 @@
     });
   }
 
+  // --- chart (軽量) ---
+  function groupByDay(rows){
+    const map = {};
+    for(const r of rows){
+      const day = (r.ts||"").slice(0,10);
+      if(!day) continue;
+      if(!map[day]) map[day] = {w:0,l:0};
+      if(r.result==="WIN") map[day].w++;
+      if(r.result==="LOSE") map[day].l++;
+    }
+    return map;
+  }
+  function lastNDaysKeys(n){
+    const keys = [];
+    const d = new Date();
+    for(let i=n-1;i>=0;i--){
+      const x = new Date(d);
+      x.setDate(d.getDate()-i);
+      const pad=(k)=>String(k).padStart(2,"0");
+      keys.push(`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`);
+    }
+    return keys;
+  }
+  function drawWinChart(rows){
+    const cvs = $("winChart");
+    const note = $("chartNote");
+    if(!cvs || !cvs.getContext) return;
+
+    const ctx = cvs.getContext("2d");
+    const W = cvs.width, H = cvs.height;
+    ctx.clearRect(0,0,W,H);
+
+    const days = lastNDaysKeys(14);
+    const byDay = groupByDay(rows);
+
+    const points = days.map(d=>{
+      const v = byDay[d] || {w:0,l:0};
+      const total = v.w+v.l;
+      const rate = total>0 ? (v.w/total)*100 : null;
+      return {d, w:v.w, l:v.l, rate};
+    });
+
+    const padL = 34, padR = 10, padT = 10, padB = 26;
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
+    for(let i=0;i<=4;i++){
+      const y = padT + (plotH*i/4);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL+plotW, y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = "#000";
+    ctx.globalAlpha = 0.55;
+    ctx.font = "12px system-ui, sans-serif";
+    [100,50,0].forEach(v=>{
+      const y = padT + plotH*(1 - v/100);
+      ctx.fillText(String(v), 6, y+4);
+    });
+    ctx.globalAlpha = 1;
+
+    const xs = points.map((p,i)=> padL + (plotW*(i/(points.length-1))));
+    const yOf = (rate)=> padT + plotH*(1 - (rate/100));
+
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let started = false;
+    points.forEach((p,i)=>{
+      if(p.rate===null) return;
+      const x = xs[i];
+      const y = yOf(p.rate);
+      if(!started){ ctx.moveTo(x,y); started=true; }
+      else ctx.lineTo(x,y);
+    });
+    if(started) ctx.stroke();
+
+    ctx.fillStyle = "#000";
+    points.forEach((p,i)=>{
+      if(p.rate===null) return;
+      const x = xs[i];
+      const y = yOf(p.rate);
+      ctx.beginPath();
+      ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    ctx.globalAlpha = 0.55;
+    ctx.font = "12px system-ui, sans-serif";
+    const idx7 = points.length-8;
+    if(idx7>=0) ctx.fillText(points[idx7].d.slice(5), xs[idx7]-14, H-8);
+    ctx.fillText(points[points.length-1].d.slice(5), xs[points.length-1]-14, H-8);
+    ctx.globalAlpha = 1;
+
+    const playedDays = points.filter(p=>p.rate!==null).length;
+    if(note) note.textContent = `直近14日：対戦があった日 ${playedDays}日 / ${points.length}日`;
+  }
+
   async function fetchRows(){
-    const url = `${DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
-    const res = await fetch(url, {cache:"no-store"});
-    if(!res.ok) throw new Error(`fetch failed: ${res.status}`);
-    const rows = await res.json();
+    // window.location を基準にしてズレを防ぐ
+    const url = new URL(DATA_URL, window.location.href);
+    url.searchParams.set("v", Date.now());
+
+    const res = await fetch(url.toString(), { cache: "no-store" });
+    const text = await res.text();
+
+    if(!res.ok){
+      throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
+    }
+    if(text.trim().startsWith("<")){
+      // 404などHTMLを掴んだとき
+      throw new Error("Got HTML instead of JSON (path mismatch / cache / open location).");
+    }
+
+    const rows = JSON.parse(text);
     return Array.isArray(rows) ? rows : [];
   }
 
@@ -541,13 +644,12 @@
       const today = calcWinRate(todayRows);
       const all = calcWinRate(ALL_ROWS);
 
-      document.getElementById("winrateTodayBig").textContent = (today.rate===null) ? "—" : `${today.rate}%`;
-      document.getElementById("todayWL").textContent = `今日：${today.w}勝${today.l}敗`;
+      $("winrateTodayBig").textContent = (today.rate===null) ? "—" : `${today.rate}%`;
+      $("todayWL").textContent = `今日：${today.w}勝${today.l}敗`;
 
-      document.getElementById("winrateAllBig").textContent = (all.rate===null) ? "—" : `${all.rate}%`;
-      document.getElementById("allWL").textContent = `全体：${all.w}勝${all.l}敗`;
+      $("winrateAllBig").textContent = (all.rate===null) ? "—" : `${all.rate}%`;
+      $("allWL").textContent = `全体：${all.w}勝${all.l}敗`;
 
-      // グラフ描画
       drawWinChart(ALL_ROWS);
 
       const {w,l} = calcToday(ALL_ROWS);
@@ -559,7 +661,7 @@
       renderList();
     }catch(e){
       $("countChip").textContent = "読み込み失敗";
-      $("listArea").innerHTML = `<div class="empty">data/matches.json を読み込めませんでした。ファイル/パスを確認してね。</div>`;
+      $("listArea").innerHTML = `<div class="empty">data/matches.json を読み込めませんでした。</div>`;
       renderDetail(null);
       $("detailMeta").textContent = String(e);
     }
