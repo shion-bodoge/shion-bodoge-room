@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>まったりゲーム実況V｜デモLP</title>
+  <meta name="description" content="桜 × 落ち着いたベージュ。まったりゲーム実況V向けの営業用デモサイト。" />
+
+  <!-- OGP（必要なら差し替え） -->
+  <meta property="og:title" content="まったりゲーム実況V｜デモLP" />
+  <meta property="og:description" content="桜 × 落ち着いたベージュの世界観。配信リンク・スケジュール・お問い合わせまで1ページに。" />
+  <meta property="og:type" content="website" />
+
+  <style>
+    :root{
+      --bg:#f5efe6;         /* ベージュ */
+      --surface:#fffaf3;    /* ほんのり明るい面 */
+      --text:#2f2830;       /* 文字 */
+      --muted:#6b626a;      /* サブ文字 */
+      --sakura:#d98cab;     /* 桜アクセント */
+      --line:rgba(47,40,48,.12);
+      --shadow:0 10px 30px rgba(47,40,48,.08);
+      --radius:18px;
+      --max:980px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body {
+      margin: 0;
+      background:
+       radial-gradient(900px 500px at 20% 10%, rgba(217,140,171,.12), transparent 60%),
+       #f5efe6;
+    }
+
+    /* 右上 */
+    body::after {
+      content:"";
+      position:fixed;
+      top:-80px;
+      right:-120px;
+      width:750px;
+      height:750px;
+      background:url("sakura-main.png") no-repeat top right;
+      background-size:contain;
+      opacity:0.1;
+      pointer-events:none;
+      z-index:-1;
+    }
+ 
+    /* 左下 */
+    body::before {
+      content:"";
+      position:fixed;
+      bottom:-60px;
+      left:-80px;
+      width:450px;
+      height:450px;
+      background:url("sakura-sub.png") no-repeat bottom left;
+      background-size:contain;
+      opacity:0.06;
+      pointer-events:none;
+      z-index:-1;
+    }
+    a{ color:inherit; text-decoration:none; }
+    img{ max-width:100%; height:auto; display:block; }
+
+    /* レイアウト */
+    .wrap{ max-width:var(--max); margin:0 auto; padding:24px 18px 64px; }
+    .section{ margin-top:28px; }
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+
+    /* ヘッダー */
+    header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:saturate(1.2) blur(10px);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:10px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:700;
+      letter-spacing:.02em;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      background:var(--sakura);
+      box-shadow:0 0 0 6px color-mix(in srgb, var(--sakura) 18%, transparent);
+    }
+    nav a{
+      font-size:14px;
+      color:var(--muted);
+      padding:8px 10px;
+      border-radius:999px;
+    }
+    nav a:hover{ background:rgba(217,140,171,.12); color:var(--text); }
+
+    /* ヒーロー */
+    .hero{
+      padding:36px 0 10px;
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    .hero h1{
+      margin:0 0 10px;
+      font-size:clamp(26px, 4.2vw, 40px);
+      line-height:1.2;
+      letter-spacing:.01em;
+    }
+    .lead{ margin:0 0 18px; color:var(--muted); }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+      color:color-mix(in srgb, var(--text) 70%, var(--muted));
+      background:rgba(217,140,171,.10);
+      border:1px solid rgba(217,140,171,.18);
+      padding:6px 10px;
+      border-radius:999px;
+      margin-bottom:12px;
+    }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:11px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      font-weight:650;
+      font-size:14px;
+      min-width:140px;
+    }
+    .btn.primary{
+      background:var(--sakura);
+      border-color:color-mix(in srgb, var(--sakura) 75%, var(--text));
+      color:#fff;
+    }
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{ transform:translateY(0); }
+
+    /* 右側カード（サマリー） */
+    .summary{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .summary .kv{ display:grid; gap:6px; }
+    .k{ font-size:12px; color:var(--muted); }
+    .v{ font-weight:700; }
+    .tagrow{ display:flex; flex-wrap:wrap; gap:8px; }
+    .tag{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.45);
+      color:var(--muted);
+    }
+
+    /* グリッド */
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    h2{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:.02em;
+    }
+    p{ margin:0; }
+
+    /* リスト */
+    .list{ display:grid; gap:10px; }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(255,255,255,.45);
+    }
+    .row b{ font-weight:700; }
+    .small{ font-size:13px; color:var(--muted); }
+
+    /* フッター */
+    footer{
+      margin-top:34px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    /* 背景装飾（後で差し替え前提のプレースホルダー） */
+    .bgfx{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-1;
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(217,140,171,.12), transparent 62%),
+        radial-gradient(900px 520px at 80% 90%, rgba(47,40,48,.06), transparent 60%);
+      /* ここに後で image / svg を重ねる想定 */
+    }
+
+    /* レスポンシブ */
+    @media (max-width: 860px){
+      .hero{ grid-template-columns:1fr; }
+      .grid2{ grid-template-columns:1fr; }
+      .grid3{ grid-template-columns:1fr; }
+      nav{ display:none; } /* まずはシンプルに。必要ならハンバーガー追加 */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bgfx" aria-hidden="true"></div>
+
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span>デモ：まったり実況V</span>
+      </div>
+      <nav aria-label="ページ内ナビ">
+        <a href="#about">About</a>
+        <a href="#schedule">Schedule</a>
+        <a href="#links">Links</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="card">
+        <div class="pill">桜 × 落ち着いたベージュ｜1ページLPデモ</div>
+        <h1>積み重ねる時間を、<br>やわらかく届ける。</h1>
+        <p class="lead">
+          まったりゲーム実況V向けのデモサイトです。<br>
+          世界観と導線を整え、応援したくなる空気感を目指しました。
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="#links">配信リンクを見る</a>
+          <a class="btn" href="#about">プロフィール</a>
+        </div>
+      </div>
+
+      <aside class="card summary" aria-label="配信サマリー">
+        <div class="kv">
+          <div class="k">配信スタイル</div>
+          <div class="v">まったり実況 / 雑談少し</div>
+        </div>
+        <div class="kv">
+          <div class="k">配信頻度</div>
+          <div class="v">週3〜4（夜が多め）</div>
+        </div>
+        <div class="tagrow" aria-label="タグ">
+          <span class="tag">#まったり</span>
+          <span class="tag">#ゲーム実況</span>
+          <span class="tag">#成長型</span>
+          <span class="tag">#桜</span>
+        </div>
+        <p class="small">
+          ※名前や予定はダミーです。営業用デモとして構成しています。
+        </p>
+      </aside>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="card">
+        <h2>About</h2>
+        <div class="grid2">
+          <div class="list">
+            <div class="row"><b>コンセプト</b><span class="small">静かな成長と居心地</span></div>
+            <div class="row"><b>大事にしていること</b><span class="small">無理しない / 続ける</span></div>
+            <div class="row"><b>配信内容</b><span class="small">ゲーム実況 / たまに企画</span></div>
+          </div>
+          <div>
+            <p class="small">
+              “派手さ”よりも“安心感”。<br>
+              視聴者がふらっと立ち寄れて、応援しやすい雰囲気を意識しています。<br><br>
+              （ここは依頼者に合わせて文章を一緒に整える想定です）
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section id="schedule" class="section">
+      <div class="card">
+        <h2>Schedule</h2>
+        <div class="list" role="list">
+          <div class="row" role="listitem">
+            <div><b>火</b> / 21:00〜</div>
+            <div class="small">まったり実況（進行回）</div>
+          </div>
+          <div class="row" role="listitem">
+            <div><b>金</b> / 21:00〜</div>
+            <div class="small">雑談＋ちょい遊び</div>
+          </div>
+          <div class="row" role="listitem">
+            <div><b>土</b> / 20:00〜</div>
+            <div class="small">長め枠（新作 or 企画）</div>
+          </div>
+        </div>
+        <p class="small" style="margin-top:10px;">
+          ※オプションで「タブ切替」「月別表示」「Googleカレンダー風」などの軽いJSも追加できます。
+        </p>
+      </div>
+    </section>
+
+    <!-- LINKS -->
+    <section id="links" class="section">
+      <div class="card">
+        <h2>Links</h2>
+        <div class="grid3">
+          <a class="btn primary" href="#" aria-label="YouTube（ダミー）">YouTube</a>
+          <a class="btn" href="#" aria-label="Twitch（ダミー）">Twitch</a>
+          <a class="btn" href="#" aria-label="X（ダミー）">X</a>
+        </div>
+        <p class="small" style="margin-top:10px;">
+          ※ここは依頼者の導線に合わせて「まとめリンク」「欲しい物」「メン限/BOOTH」なども追加できます。
+        </p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="card">
+        <h2>Contact</h2>
+        <p class="small">
+          応援メッセージ・お仕事のご相談はこちら（ダミー）。<br>
+          依頼ページにする場合は、フォーム埋め込み or メールリンク or XのDM導線を用意します。
+        </p>
+
+        <div class="actions" style="margin-top:14px;">
+          <a class="btn primary" href="#">お問い合わせ（ダミー）</a>
+          <a class="btn" href="#">見積もり相談（ダミー）</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© Demo LP. 桜 × 落ち着いたベージュ｜静的HTML</div>
+      <div class="small">このページは営業用デモです。</div>
+    </footer>
+  </main>
+</body>
+</html>
