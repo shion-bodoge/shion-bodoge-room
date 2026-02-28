@@ -403,14 +403,12 @@
           <option value="WIN">勝ち</option>
           <option value="LOSE">負け</option>
           <option value="TODAY">今日</option>
-          <option value="NONE">選択なし</option>
         </select>
         <select id="typeFilter" aria-label="区分フィルタ">
           <option value="ALL">区分：なし（全部）</option>
           <option value="tournament">区分：大会</option>
           <option value="free">区分：フリプ</option>
           <option value="rank">区分：ランク</option>
-          <option value="NONE">選択なし</option>
         </select>
       </div>
 
@@ -648,15 +646,14 @@
 
   function passesResultFilter(u, f){
     // result は WIN/LOSE しか無い前提：
-    // - ALL / NONE：同義（全部）
-    if(f==="ALL" || f==="NONE") return true;
+    // - ALL（全部）
+    if(f==="ALL") return true;
     if(f==="TODAY") return String(u.date||"") === todayKey();
     return String(u.result||"") === f;
   }
 
   function passesTypeFilter(u, f){
     if(f==="ALL") return true;
-    if(f==="NONE") return !u.match_type; // null/空 を見る
     return String(u.match_type||"") === f;
   }
 
