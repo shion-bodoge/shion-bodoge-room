@@ -503,7 +503,7 @@
             </div>
             <h3>世界を作る部屋</h3>
             <p>
-              配信者向けのWebサイト制作をしています。ご依頼はこちらから。
+              あなたの世界観、形にしませんか。
             </p>
             <div class="btnrow">
               <a class="btn primary" href="service.html">制作ページ</a>
@@ -520,26 +520,20 @@
           </div>
           <ul class="schedule">
             <li>
+              <a class="scheduleLink" href="#" id="scheduleMon">
+                <span class="day">月</span><span class="note">雑談配信（ツール紹介）</span>
+              </a>
+            </li>
+
+            <li>
               <a class="scheduleLink" href="#" id="scheduleTue">
                 <span class="day">火</span><span class="note">ゲーム配信</span>
               </a>
             </li>
 
             <li>
-              <a class="scheduleLink" href="#" id="scheduleWed">
-                <span class="day">水</span><span class="note">動画投稿</span>
-              </a>
-            </li>
-
-            <li>
               <a class="scheduleLink" href="#" id="scheduleThu">
                 <span class="day">木</span><span class="note">ふるよに参加型</span>
-              </a>
-            </li>
-
-            <li>
-              <a class="scheduleLink" href="#" id="scheduleSat">
-                <span class="day">土</span><span class="note">ふるよに参加型（無理ならお休み）</span>
               </a>
             </li>
           </ul>
@@ -565,14 +559,17 @@
   <script>
     // ★ここだけ書き換えるとリンクが生きます（後からでOK）
     const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/channel/UCrXd_KijTSd_iNUo2H32t0A";   // 例: "https://www.youtube.com/@yourchannel"
-    const LATEST_URL = "https://youtu.be/IMyrrpWHIhw";            // 例: 最新動画や配信のURL
+    const LATEST_URL = "https://youtube.com/live/twx6W-o1ulI";            // 例: 最新動画や配信のURL
     const DECK_BUILDER_URL = "";      // 例: あなたのデッキ構築システムのURL
     const BLOGLINK_URL = "https://shionbodoge.com/";       // ブログURL
     const XLINK_URL = "https://x.com/shionbodoge";       // XURL
-    const SCHEDULE_TUE_URL = "https://youtube.com/live/88f58ieyVBA"; // 配信URL
-    const SCHEDULE_WED_URL = "https://youtu.be/IMyrrpWHIhw"; // 動画URL
-    const SCHEDULE_THU_URL = "https://youtube.com/live/4cIe7VT4Qu8"; // 参加型URL
+    const SCHEDULE_MON_URL = "https://youtube.com/live/LhRwD50chO0"; // 配信URL
+    const SCHEDULE_TUE_URL = "https://youtube.com/live/YjAPCXB97H0"; // 配信URL
+    const SCHEDULE_WED_URL = ""; // 動画URL
+    const SCHEDULE_THU_URL = "https://youtube.com/live/ch1w93bSmR8"; // 参加型URL
+    const SCHEDULE_FRI_URL = ""; // 参加型URL
     const SCHEDULE_SAT_URL = ""; // 調整枠（配信するならURL / 休みなら空でOK）
+    const SCHEDULE_SAN_URL = ""; // 調整枠（配信するならURL / 休みなら空でOK）
 
     // 年号
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -596,10 +593,13 @@
     setLink("blogLink", BLOGLINK_URL);
     setLink("XLink", XLINK_URL);
     
+    setLink("scheduleMon", SCHEDULE_MON_URL);
     setLink("scheduleTue", SCHEDULE_TUE_URL);
     setLink("scheduleWed", SCHEDULE_WED_URL);
     setLink("scheduleThu", SCHEDULE_THU_URL);
+    setLink("scheduleFri", SCHEDULE_FRI_URL);
     setLink("scheduleSat", SCHEDULE_SAT_URL);
+    setLink("scheduleSan", SCHEDULE_SAN_URL);
 
     // URLが "#" のリンクは「準備中」にする
     document.querySelectorAll('a[href="#"]').forEach(link => {
@@ -610,6 +610,4 @@
     });
   </script>
 </body>
-
 </html>
-
