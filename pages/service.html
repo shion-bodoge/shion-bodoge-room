@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ことばの設計室 | しおんのボドゲ部屋</title>
+  <meta name="description" content="『何を書けばいいかわからない』から一緒に整えます。思考整理からはじめる設計サポート。" />
+
+  <style>
+    :root{
+      --text:#2f2830;
+      --muted:#6b6570;
+
+      /* 背景：白＋水色グラデーション */
+      --bgTop:#f7fbff;
+      --bgBottom:#eef5fb;
+
+      --panel:rgba(255,255,255,.92);
+      --line:rgba(40,40,60,.14);
+      --line2:rgba(40,40,60,.10);
+
+      --accent:rgba(255,184,112,.90);
+      --accent2:rgba(255,184,112,.30);
+
+      --shadow: 0 14px 34px rgba(18,28,40,.08);
+      --radius2: 26px;
+
+      --max: 980px;
+
+      /* fixedヘッダー高さ（調整しやすいよう変数化） */
+      --topbarH: 64px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    /* ✅ 背景をhtml側に固定して、途中で切り替わる感じを消す */
+    html{
+      min-height: 100%;
+      background:
+        radial-gradient(1000px 700px at 25% 0%, rgba(255,255,255,.90), transparent 60%),
+        radial-gradient(900px 650px at 80% 10%, rgba(200,225,255,.28), transparent 55%),
+        linear-gradient(180deg, var(--bgTop) 0%, var(--bgBottom) 100%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      scroll-behavior: smooth;
+    }
+
+    body{
+      margin:0;
+      min-height: 100%;
+      color:var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: transparent; /* html側の背景を見せる */
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    /* ===== Top bar ===== */
+    /* ✅ sticky → fixed（消える問題の回避） */
+    .topbar{
+      position: fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:9999;
+      height: 64px;
+      display:flex;
+      align-items:center;
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: rgba(247,251,255,.78);
+      border-bottom:1px solid var(--line2);
+    }
+    .topbarInner{
+      width:100%;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .roomLabel{
+      font-weight:700;
+      letter-spacing:.02em;
+      color:#3a3f49;
+      white-space: nowrap;
+    }
+    .backLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:#3a3f49;
+      font-size:14px;
+      opacity:.95;
+      padding:8px 0;
+      border-radius: 999px;
+      border:1px solid transparent;
+      white-space: nowrap;
+    }
+    .backLink:hover{
+      text-decoration:none;
+      border-color: var(--line2);
+      background: rgba(255,255,255,.70);
+    }
+
+    /* ===== Layout ===== */
+    .wrap{
+      max-width: var(--max);
+      margin:0 auto;
+      /* ✅ fixedヘッダー分だけ上を空ける */
+      padding: calc(var(--topbarH) + 18px) 18px 56px;
+    }
+
+    /* ===== Hero ===== */
+    .hero{
+      text-align:left;
+      padding: 10px 0 8px;
+    }
+    .heroTitle{
+      font-weight:900;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height:1.15;
+      margin: 0 0 6px;
+      color:#3a3f49;
+      letter-spacing:.01em;
+    }
+    .heroSub{
+      font-weight:600;
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--muted);
+      margin:0;
+      line-height: 1.7;
+    }
+
+    /* ===== Panels ===== */
+    .panel{
+      background: var(--panel);
+      border:1px solid var(--line2);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .panel + .panel{ margin-top: 14px; }
+
+    section{
+      scroll-margin-top: calc(var(--topbarH) + 10px);
+    }
+
+    .sectionTitle{
+      font-weight:900;
+      font-size: 20px;
+      margin: 0 0 10px;
+      color:#39404b;
+      letter-spacing:.01em;
+    }
+    .sectionNote{
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height:1.7;
+    }
+
+    /* ===== Can do ===== */
+    .candoList{
+      margin: 10px 0 0;
+      padding: 0 0 0 1.2em;
+      color:#3e4450;
+      line-height:1.9;
+    }
+    .candoList li{ margin: 4px 0; }
+    .softTip{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px dashed var(--line);
+      background: rgba(255,255,255,.70);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* ===== Pricing ===== */
+    .pricingHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom: 8px;
+    }
+    .pricingNote{
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 860px){
+      .cards{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: rgba(255,255,255,.80);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      min-height: 170px;
+    }
+
+    .planName{
+      font-weight:900;
+      font-size: 16px;
+      margin: 2px 0 10px;
+      color:#2f3540;
+    }
+    .price{
+      font-weight:900;
+      font-size: 22px;
+      margin: 0 0 10px;
+      letter-spacing:.01em;
+    }
+    .price small{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      margin-left: 2px;
+    }
+    .bullets{
+      margin: 0;
+      padding: 0 0 0 1.1em;
+      color:#3d4350;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.75);
+      color: var(--muted);
+      margin-top: 10px;
+      width: fit-content;
+    }
+    .tagDot{
+      width:8px; height:8px; border-radius:999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent2);
+    }
+
+    /* ===== Flow (縦1列) ===== */
+    .flow{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .step{
+      background: rgba(255,255,255,.78);
+      border:1px solid var(--line2);
+      border-radius: 18px;
+      padding: 12px 14px;
+    }
+    .stepTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 900;
+      margin: 0 0 6px;
+      color:#39404b;
+    }
+    .stepNum{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:28px; height:28px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background: rgba(255,255,255,.92);
+      font-weight:900;
+      color:#39404b;
+      flex: 0 0 auto;
+    }
+    .stepText{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ===== Works / Contact ===== */
+    .emptyBox{
+      border:1px dashed var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,.70);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .ctaRow{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 8px 20px rgba(18,28,40,.06);
+      font-weight: 900;
+      color:#39404b;
+    }
+    .btn:hover{ text-decoration:none; transform: translateY(-1px); }
+    .btnPrimary{
+      border-color: rgba(255,184,112,.55);
+      background: rgba(255,255,255,.95);
+    }
+    .hint{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ===== Footer ===== */
+    footer{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 26px 18px 40px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.8;
+      opacity: .95;
+    }
+
+    .navLinks{
+      display:flex;
+      gap:18px;
+      align-items:center;
+    }
+
+    .navLinks a{
+      font-size:14px;
+      font-weight:700;
+      color:#39404b;
+      opacity:.85;
+    }
+
+    .navLinks a:hover{
+      opacity:1;
+      text-decoration:none;
+    }
+
+    /* ===== Templates ===== */
+    .templateGrid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:20px;
+      margin-top:16px;
+    }
+    @media (max-width: 860px){
+      .templateGrid{ grid-template-columns: 1fr; }
+    }
+
+    .templateCard{
+      background: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      border-radius: 20px;
+      padding:16px;
+    }
+
+    .templateCard img{
+      width:100%;
+      border-radius:16px;
+      margin-bottom:12px;
+    }
+
+    .templateCard h3{
+      margin: 4px 0 8px;
+      font-size:16px;
+      font-weight:900;
+    }
+
+    .templateCard p{
+      margin:0 0 10px;
+      font-size:14px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbarInner">
+      <div class="roomLabel">ことばの設計室</div>
+
+       <nav class="navLinks">
+         <a href="#pricing">料金</a>
+         <a href="#templates">テンプレ例</a>
+         <a href="#flow">制作の流れ</a>
+         <a href="#works">実績</a>
+         <a href="#contact">相談</a>
+       </nav>    
+
+      <a class="backLink" href="../index.html" aria-label="しおんのボドゲ部屋へ戻る">
+        <span aria-hidden="true">←</span>
+        <span>しおんのボドゲ部屋へ戻る</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" aria-labelledby="heroTitle">
+      <h1 class="heroTitle" id="heroTitle">ことばの設計室</h1>
+      <p class="heroSub">「何を書けばいいかわからない」から、一緒に整えます。</p>
+    </section>
+
+    <section class="panel" aria-labelledby="candoTitle">
+      <h2 class="sectionTitle" id="candoTitle">できること</h2>
+      <p class="sectionNote">
+        いきなりデザインから入りません。まずは「何を伝えたいか」「誰に届けたいか」を整理して、
+        “伝わる順番”と“あなたらしい空気感”を整えます。
+      </p>
+      <ul class="candoList">
+        <li>頭の中のもやもやを言語化して、方向性をはっきりさせる</li>
+        <li>ページ構成（伝える順番）を決める</li>
+        <li>世界観（配色・雰囲気）を整える</li>
+        <li>「これでいける」が見える状態にする</li>
+      </ul>
+      <div class="softTip">
+        ※デザインやHTMLは“結果”として整えます。あなたの強み・活動・届けたい相手に合わせて設計します。
+      </div>
+    </section>
+
+    <section class="panel" id="pricing" aria-labelledby="pricingTitle">
+      <div class="pricingHead">
+        <h2 class="sectionTitle" id="pricingTitle">料金</h2>
+        <div class="pricingNote">
+          ※現在はすべてモニター価格です。<br>
+          ※すべて実績として掲載いたします。
+        </div>
+      </div>
+
+      <div class="cards">
+        <article class="card" aria-label="思考整理プラン">
+          <div class="planName">思考整理プラン</div>
+          <div class="price">5,000円<small>（60分）</small></div>
+          <ul class="bullets">
+            <li>目的・ターゲット・価値の言語化</li>
+            <li>ページの構成（伝える順番）を決める</li>
+            <li>色・フォントの方向性を決める</li>
+            <li>まとめを共有（Notion等）</li>
+          </ul>
+          <div class="tag"><span class="tagDot"></span>まずここから</div>
+        </article>
+
+        <article class="card" aria-label="シンプル設計プラン">
+          <div class="planName">シンプル設計プラン</div>
+          <div class="price">20,000円<small>（テンプレ仕上げ）</small></div>
+          <ul class="bullets">
+            <li>思考整理（60分）</li>
+            <li>テンプレ反映（縦3ボックス構成）</li>
+            <li>配色・フォント調整</li>
+            <li>HTML納品（GitHub Pages想定）</li>
+            <li>修正1回</li>
+          </ul>
+          <div class="tag"><span class="tagDot"></span>形まで作る</div>
+        </article>
+
+        <article class="card" aria-label="世界観設計プラン">
+          <div class="planName">世界観設計プラン</div>
+          <div class="price">35,000円<small>（世界観＋制作）</small></div>
+          <ul class="bullets">
+            <li>思考整理（60〜120分）</li>
+            <li>世界観設計（配色・余白・雰囲気指針）</li>
+            <li>構成＋デザイン調整</li>
+            <li>HTML作成〜納品</li>
+            <li>修正1回</li>
+          </ul>
+          <div class="tag"><span class="tagDot"></span>空気感まで整える</div>
+        </article>
+      </div>
+
+      <div class="softTip" style="margin-top:12px;">
+        アップグレード：思考整理プランから「シンプル設計 / 世界観設計」に変更する場合は <b>差額</b>でOK。<br>
+        オプション例：追加修正 +3,000円/回 ／ ボックス追加 +3,000円 ／ 思考整理延長 +2,000円/30分
+      </div>
+
+      <div class="ctaRow">
+        <a class="btn btnPrimary" href="#contact">まずは相談する</a>
+        <span class="hint">迷ったら「思考整理プラン」→必要なら差額でアップグレードできます。</span>
+      </div>
+    </section>
+
+    <section class="panel" id="templates" aria-labelledby="templatesTitle">
+      <h2 class="sectionTitle" id="templatesTitle">テンプレート例</h2>
+      <p class="sectionNote">
+        雰囲気の違う2種類をご用意しています。色やフォントは調整可能です。
+      </p>
+
+      <div class="templateGrid">
+
+        <div class="templateCard">
+          <img src="../assets/images/template-a.png" alt="シンプルテンプレ">
+          <h3>整った設計型テンプレ</h3>
+          <p>
+            静かで落ち着いた印象。制作や活動内容をすっきり見せたい方向け。
+          </p>
+          <a class="btn" href="templates/sample-a.html" target="_blank">デモを見る</a>
+        </div>
+
+        <div class="templateCard">
+          <img src="../assets/images/template-b.png" alt="やわらかテンプレ">
+          <h3>やわらか世界観テンプレ</h3>
+          <p>
+            やさしい雰囲気で活動の空気感を大切にしたい方向け。
+          </p>
+          <a class="btn" href="templates/sample-b.html" target="_blank">デモを見る</a>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="panel" id="flow" aria-labelledby="flowTitle">
+      <h2 class="sectionTitle" id="flowTitle">設計の流れ</h2>
+      <div class="flow">
+        <div class="step">
+          <div class="stepTitle"><span class="stepNum">1</span>思考整理（60分）</div>
+          <p class="stepText">いま考えていることを一緒にほどいて、伝えたい軸を決めます。</p>
+        </div>
+        <div class="step">
+          <div class="stepTitle"><span class="stepNum">2</span>設計まとめ共有</div>
+          <p class="stepText">ページ構成・導線・世界観の方向性を、見える形にしてお渡しします。</p>
+        </div>
+        <div class="step">
+          <div class="stepTitle"><span class="stepNum">3</span>テンプレ提供（必要に応じて）</div>
+          <p class="stepText">プランに応じて、シンプル/世界観ベースのテンプレをお渡しします。</p>
+        </div>
+        <div class="step">
+          <div class="stepTitle"><span class="stepNum">4</span>修正（回数はプランによる）</div>
+          <p class="stepText">気になる点を調整して、納得できる形に寄せます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="works" aria-labelledby="worksTitle">
+      <h2 class="sectionTitle" id="worksTitle">実績</h2>
+      <div class="emptyBox">
+        現在モニター募集期間です。<br>
+        一緒に形にした実績を、ここに少しずつ増やしていきます。
+      </div>
+    </section>
+
+    <section class="panel" id="contact" aria-labelledby="contactTitle">
+      <h2 class="sectionTitle" id="contactTitle">相談</h2>
+      <p class="sectionNote">
+        「何を書けばいいかわからない」状態でも大丈夫です。まずは思考整理から一緒にやりましょう。
+      </p>
+
+      <div class="ctaRow">
+        <!-- ✅ ここはGoogleフォームURLに差し替え推奨 -->
+        <a class="btn btnPrimary" href="https://forms.gle/" target="_blank" rel="noopener">相談フォームへ</a>
+        <!-- Xを仕事用で作るならここを差し替え -->
+        <a class="btn" href="https://x.com/" target="_blank" rel="noopener">Xで一言</a>
+        <span class="hint">返信はゆっくりめになることがあります。</span>
+      </div>
+
+      <div class="softTip" style="margin-top:12px;">
+        相談時にあると助かるもの：<br>
+        ・いまの活動（配信/創作/開発など）／・作りたいページのイメージ（ふわっとでOK）／・参考URL（あれば）
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© しおんのボドゲ部屋 / ことばの設計室</div>
+    <div>
+      ※料金は予告なく変更する場合があります（モニター期間終了後に改定予定）。<br>
+      ※実績として掲載させていただきます（掲載が難しい場合は事前にご相談ください）。
+    </div>
+  </footer>
+</body>
+</html>
