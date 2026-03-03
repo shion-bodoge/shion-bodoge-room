@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>個人発信者向けテンプレ | しおん</title>
+  <meta name="description" content="個人発信者向けのシンプルな1ページテンプレです。" />
+
+  <style>
+    :root{
+      /* ===== ここだけ変えれば雰囲気を変えられる ===== */
+      --text:#2f2830;
+      --muted:#6b6570;
+
+      /* 背景：ふんわりピンク */
+      --bgTop:#fff7f5;
+      --bgBottom:#fdeef2;
+
+      /* パネル */
+      --panel:rgba(255,255,255,.94);
+      --line:rgba(90,60,70,.14);
+      --line2:rgba(90,60,70,.10);
+
+      /* アクセント（ボタン/ポイント） */
+      --accent:rgba(255,150,170,.92);
+      --accent2:rgba(255,150,170,.22);
+
+      --shadow: 0 16px 36px rgba(60,30,40,.10);
+
+      /* 角丸：大きめでやわらか */
+      --radius2: 30px;
+
+      --max: 980px;
+
+      /* fixedヘッダー高さ */
+      --topbarH: 64px;
+
+      /* ★ あなたのリンク（ここだけ差し替え推奨） */
+      --xUrl: "https://x.com/your_account";
+      --YouTubeUrl: "https://YouTube.com/your_account";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    html{
+      min-height: 100%;
+      background:
+        radial-gradient(1000px 700px at 25% 0%, rgba(255,255,255,.90), transparent 60%),
+        radial-gradient(900px 650px at 80% 10%, rgba(200,225,255,.28), transparent 55%),
+        linear-gradient(180deg, var(--bgTop) 0%, var(--bgBottom) 100%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      scroll-behavior: smooth;
+      /* fixedヘッダー分だけアンカー位置をずらす（超安定） */
+      scroll-padding-top: calc(var(--topbarH) + 14px);
+    }
+
+    body{
+      margin:0;
+      min-height: 100%;
+      color:var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: transparent;
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    /* ===== Top bar ===== */
+    .topbar{
+      position: fixed;
+      top:0; left:0; right:0;
+      z-index:9999;
+      height: var(--topbarH);
+      display:flex;
+      align-items:center;
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: rgba(255, 25, 68, 0.05);
+      border-bottom:1px solid var(--line2);
+    }
+    .topbarInner{
+      width:100%;
+      padding:12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .roomLabel{
+      font-weight:900;
+      letter-spacing:.02em;
+      color:#3a3f49;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .navLinks{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      flex: 1 1 auto;
+      justify-content:center;
+      min-width: 0;
+    }
+    .navLinks a{
+      font-size:14px;
+      font-weight:800;
+      color:#39404b;
+      opacity:.82;
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid transparent;
+      white-space: nowrap;
+    }
+    .navLinks a:hover{
+      opacity:1;
+      text-decoration:none;
+      border-color: var(--line2);
+      background: rgba(255,255,255,.70);
+    }
+
+    .dmLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
+      font-weight:900;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,184,112,.55);
+      background: rgba(255,255,255,.88);
+      color:#39404b;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .dmLink:hover{
+      text-decoration:none;
+      transform: translateY(-1px);
+    }
+
+    .YouTubeLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
+      font-weight:900;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,184,112,.55);
+      background: rgba(255,255,255,.88);
+      color:#39404b;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .YouTubeLink:hover{
+      text-decoration:none;
+      transform: translateY(-1px);
+    }
+
+
+    @media (max-width: 760px){
+      .navLinks{
+        display:none; /* スマホはスッキリ */
+      }
+    }
+
+    /* ===== Layout ===== */
+    .wrap{
+      max-width: var(--max);
+      margin:0 auto;
+      padding: calc(var(--topbarH) + 18px) 18px 56px;
+    }
+
+    /* ===== Hero ===== */
+    .hero{
+      text-align:left;
+      padding: 10px 0 8px;
+    }
+    .heroTitle{
+      font-weight:900;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height:1.15;
+      margin: 0 0 6px;
+      color:#3a3f49;
+      letter-spacing:.01em;
+    }
+    .heroSub{
+      font-weight:600;
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--muted);
+      margin:0;
+      line-height: 1.7;
+    }
+
+    /* ===== Panels / Cards ===== */
+    .panel{
+      background: rgba(255,255,255,.95);
+      border:1px solid var(--line2);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .panel + .panel{ margin-top: 14px; }
+
+    .sectionTitle{
+      font-weight:900;
+      font-size: 20px;
+      margin: 0 0 10px;
+      color:#39404b;
+      letter-spacing:.01em;
+
+      padding-left:14px;
+      border-left:10px solid var(--accent);
+      border-radius: 8px;
+    }
+    .sectionNote{
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height:1.7;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 860px){
+      .cards{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: rgba(255,255,255,.80);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      min-height: 170px;
+    }
+    .cardTitle{
+      font-weight:900;
+      font-size: 16px;
+      margin: 2px 0 10px;
+      color:#2f3540;
+    }
+    .cardText{
+      margin: 0 0 8px;
+      color:#3d4350;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .cardSub{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* ===== CTA ===== */
+    .ctaRow{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 8px 20px rgba(18,28,40,.06);
+      font-weight: 900;
+      color:#39404b;
+    }
+    .btn:hover{ text-decoration:none; transform: translateY(-1px); }
+    .btnPrimary{
+      border-color: rgba(255,184,112,.55);
+      background: rgba(255,255,255,.95);
+    }
+
+    .hint{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .softTip{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px dashed var(--line);
+      background: rgba(255,255,255,.70);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* 将来用フォーム（非表示） */
+    .is-hidden{ display:none !important; }
+
+    footer{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 26px 18px 40px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.8;
+      opacity: .95;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbarInner">
+      <div class="roomLabel">テンプレ（かわいい）</div>
+
+      <nav class="navLinks" aria-label="ページ内ナビ">
+        <a href="#about">どんな人？</a>
+        <a href="#cando">やってること</a>
+        <a href="#schedule">スケジュール</a>
+        <a href="#contact">各種リンク</a>
+      </nav>
+
+      <a class="dmLink" id="dmLink" href="#" target="_blank" rel="noopener">Xへ</a>
+      <a class="YouTubeLink" id="YouTubeLink" href="#" target="_blank" rel="noopener">YouTubeへ</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <h1 class="heroTitle" id="heroTitle">わたしの世界</h1>
+      <p class="heroSub">好きをもっと、広めたい</p>
+    </section>
+
+    <section class="panel" id="about">
+      <h2 class="sectionTitle">どんな人？</h2>
+      <p class="boxText">
+        <b>＜🎲ゲームが好きな社会人🎲＞</b><br>
+　　　　<br>     
+        ２人用対戦ゲームや拡大再生産系のボードゲームが大好きです！<br>
+        わたしがおもしろいと思ったゲームを配信で遊んでます🔥
+        みんながおもしろいと思ったゲームもやりたいな！
+      </p>
+      <p class="boxSub">
+        最近：○○っていうゲームを配信したよ！
+      </p>
+    </section>
+
+    <section class="panel" id="cando">
+      <h2 class="sectionTitle">やってること</h2>
+      <p class="boxText">
+        <b>＜自分の好きを広める活動＞</b><br>  
+        <br> 
+        好きなものでつながって、みんなで遊べたらすてきだよね！<br>     
+        みんなの好きも教えてほしいな！
+      </p>
+      <p class="boxSub">
+        例：配信活動 / 動画投稿 / ブログ投稿
+      </p>
+    </section>
+
+    <section class="panel" id="schedule">
+      <h2 class="sectionTitle">スケジュール</h2>
+      <p class="boxText">水：20時～　ゲーム配信</p>
+      <p class="boxText">土：20時～　参加型</p>
+      <p class="boxSub">一緒に遊ぼう💪</p>
+    </section>
+
+    <!-- 問い合わせ（BOXの下に独立） -->
+    <section class="panel" id="contact" aria-labelledby="contactTitle">
+      <h2 class="sectionTitle" id="contactTitle">各種リンク</h2>
+      <p class="sectionNote">
+        わたしのお知らせとか配信とかしてる場所を置いておくね！
+      </p>
+
+      <div class="ctaRow">
+        <a class="btn btnPrimary" id="dmBtn" href="#" target="_blank" rel="noopener">X</a>
+        <a class="btn btnPrimary" id="YouTubeBtn" href="#" target="_blank" rel="noopener">YouTube</a>
+
+        <!-- 将来用フォーム（今は非表示：URL入れたら is-hidden を外すだけでOK） -->
+        <a class="btn is-hidden" id="formBtn" href="https://forms.gle/" target="_blank" rel="noopener">相談フォームへ</a>
+
+      </div>
+
+      <div class="softTip">
+        送ってもらえると助かること：<br>
+        ・配信や動画の感想／・おすすめのゲーム など
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© しおん</div>
+    <div>※このページはGitHub Pagesで動く範囲で完結しています。</div>
+  </footer>
+
+  <script>
+    // XのURLをCSS変数から読み取り、DMボタンに反映
+    // ※ 必要ならここでDMリンク（/messages/compose?recipient_id=...）に差し替えもOK
+    const xUrl = getComputedStyle(document.documentElement).getPropertyValue('--xUrl').trim().replace(/^"|"$/g,'');
+    const YouTubeUrl = getComputedStyle(document.documentElement).getPropertyValue('--YouTubeUrl').trim().replace(/^"|"$/g,'');
+
+    const dmLink = document.getElementById('dmLink');
+    const dmBtn = document.getElementById('dmBtn');
+    const YouTubeLink = document.getElementById('YouTubeLink');
+    const YouTubeBtn = document.getElementById('YouTubeBtn');
+    dmLink.href = xUrl;
+    dmBtn.href = xUrl;
+    YouTubeLink.href = YouTubeUrl;
+    YouTubeBtn.href = YouTubeUrl;
+  </script>
+</body>
+</html>
